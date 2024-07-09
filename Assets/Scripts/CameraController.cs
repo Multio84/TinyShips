@@ -13,6 +13,7 @@ public class CameraController : MonoBehaviour
     Plane _cameraPlane;
     public float movementSpeed = 10.0f; // Скорость движения камеры
 
+    Vector3 testPos = new Vector3(10f, 0f, 7.5f);
 
 
     void Start()
@@ -23,7 +24,12 @@ public class CameraController : MonoBehaviour
     void Update()
     {
         if (Input.GetMouseButton(0)) {
-            SetCameraPos(GetCameraPosByFieldPos(GetFieldPos()));
+            SetPos(GetPosByFieldPos(GetFieldPosByCursor()));
+            //SetCameraPos(GetCameraPosByFieldPos(testPos));
+        }
+
+        if (Input.GetKey(KeyCode.Space)) {
+            SetPos(GetPosByFieldPos(testPos));
         }
     }
 
@@ -49,7 +55,7 @@ public class CameraController : MonoBehaviour
     }
 
     // get position on gamefield under cursor
-    Vector3 GetFieldPos()
+    Vector3 GetFieldPosByCursor()
     {
         Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition); // Создаем луч из камеры в направлении курсора мыши
         RaycastHit hit;
@@ -58,16 +64,14 @@ public class CameraController : MonoBehaviour
         {
             if (hit.collider.gameObject.CompareTag("GameField")) // Проверяем, что попадание происходит на игровое поле
             {
-                Vector3 target = hit.point; // Сохраняем точку пересечения как target
-                //Debug.Log($"Clicked on GameField in {_target}");
-                return target;
+                return hit.point;
             }
             return Vector3.zero;
         }
         return Vector3.zero;
     }
 
-    Vector3 GetCameraPosByFieldPos(Vector3 fieldPos)
+    Vector3 GetPosByFieldPos(Vector3 fieldPos)
     {
         Ray rayFromGameField = new Ray(fieldPos, -_cameraNormal);
         Debug.DrawRay(rayFromGameField.origin, rayFromGameField.direction * 100, Color.red);
@@ -85,9 +89,10 @@ public class CameraController : MonoBehaviour
         return intersection;
     }
 
-    void SetCameraPos(Vector3 pos)
-    {
-        _cameraObject.transform.position = pos;
+    void SetPos(Vector3 pos)
+    {   
+        var localPos = _cameraObject.transform.InverseTransformPoint(pos);
+        _cameraObject.transform.localPosition = new Vector3(localPos.x, localPos.y, 0);   // camera sholdn't move along the local Z
     }
 
 
