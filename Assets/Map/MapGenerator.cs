@@ -43,7 +43,7 @@ public class MapGenerator : MonoBehaviour
 
         GameObject tile = _tilePrefabs[0];
         var tileSpawned = Instantiate(tile, worldPos, Quaternion.identity, _grid.transform);
-        Debug.Log($"Spawned tile in ({x}, {y})");
+        
 
         return tileSpawned.GetComponent<Tile>();
     }
@@ -68,6 +68,7 @@ public class MapGenerator : MonoBehaviour
                  SetTileSize(_tiles[x, y]);
             }
         }
+        Debug.Log("Spawned a map.");
     }
 
 
