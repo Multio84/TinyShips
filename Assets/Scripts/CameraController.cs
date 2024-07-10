@@ -1,19 +1,25 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 
 
 public class CameraController : MonoBehaviour
 {
+    // debug params
+    public Transform planeTransform;
+    public float planeSize = 10f;
+
+    // objects
     public Transform _cameraHolder;
     public GameObject _cameraObject;
     public Camera _mainCamera;
-    public GameObject testPlaceObject;
+    //public GameObject testPlaceObject;
     
-    Vector3 _cameraNormal;
+    // transform params
     Plane _cameraPlane;
+    Vector3 _cameraNormal;
     public float movementSpeed = 10.0f; // Скорость движения камеры
 
-    Vector3 testPos = new Vector3(10f, 0f, 7.5f);
 
 
     void Start()
@@ -23,25 +29,24 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButton(0)) {
-            SetPos(GetPosByFieldPos(GetFieldPosByCursor()));
-            //SetCameraPos(GetCameraPosByFieldPos(testPos));
+        if (Input.GetMouseButtonUp(0)) {
+            Place();
         }
 
-        if (Input.GetKey(KeyCode.Space)) {
-            SetPos(GetPosByFieldPos(testPos));
-        }
+        // if (Input.GetKey(KeyCode.Space)) {
+        //     SetPos(GetPosByFieldPos(testPos));
+        // }
     }
-
+    
     void Initialize()
     {
-        if (_cameraHolder is null || _cameraObject is null) {
+        if (_cameraHolder is null || _cameraObject is null || _mainCamera is null) {
             Debug.LogError("CameraHolder or Camera isn't assigned!");
             return;
         }
 
         _cameraPlane = GetCameraPlane();
-        _cameraNormal = _cameraHolder.transform.forward;
+        _cameraNormal = -_cameraPlane.normal;
     }
 
     Plane GetCameraPlane()
@@ -49,22 +54,19 @@ public class CameraController : MonoBehaviour
         Vector3 rotationNormal = _cameraHolder.transform.rotation.eulerAngles;
         Vector3 pointOnPlane = _cameraHolder.transform.position;
 
-        Plane plane = new Plane(rotationNormal, pointOnPlane);
-
-        return plane;
+        return new Plane(rotationNormal, pointOnPlane);
     }
 
     // get position on gamefield under cursor
-    Vector3 GetFieldPosByCursor()
+    Vector3 GetFieldPosByClick()
     {
         Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition); // Создаем луч из камеры в направлении курсора мыши
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit)) // Проверяем пересечение луча с объектами сцены
-        {
-            if (hit.collider.gameObject.CompareTag("GameField")) // Проверяем, что попадание происходит на игровое поле
-            {
-                return hit.point;
+        if (Physics.Raycast(ray, out hit)) {
+            if (hit.collider.gameObject.CompareTag("GameField")) {
+                var fieldPos = hit.point;
+                return fieldPos;
             }
             return Vector3.zero;
         }
@@ -73,6 +75,7 @@ public class CameraController : MonoBehaviour
 
     Vector3 GetPosByFieldPos(Vector3 fieldPos)
     {
+        _cameraNormal = _cameraHolder.transform.forward;
         Ray rayFromGameField = new Ray(fieldPos, -_cameraNormal);
         Debug.DrawRay(rayFromGameField.origin, rayFromGameField.direction * 100, Color.red);
 
@@ -91,48 +94,45 @@ public class CameraController : MonoBehaviour
 
     void SetPos(Vector3 pos)
     {   
-        var localPos = _cameraObject.transform.InverseTransformPoint(pos);
-        _cameraObject.transform.localPosition = new Vector3(localPos.x, localPos.y, 0);   // camera sholdn't move along the local Z
+        _cameraObject.transform.position = pos;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    Vector3 GetCameraRayXZIntersection(Vector3 cameraPos)
+    void Place() 
     {
-        // XZ plane to catch rays from camera
-        Plane plane = new Plane(Vector3.up, Vector3.zero);
-
-        // cast a ray from camera in camera's Forward direction
-        Ray ray = new Ray(cameraPos, _cameraObject.transform.forward);
-        Debug.DrawRay(ray.origin, ray.direction * 100, Color.red);
-
-        Vector3 intersection;
-
-        if (plane.Raycast(ray, out float distanceToIntersection)) {
-            intersection = ray.GetPoint(distanceToIntersection);
-        }
-        else {
-            Debug.LogError("Нет пересечения с плоскостью Y = 0.");
-            return Vector3.zero;
-        }
-
-        return intersection;
+        Vector3 fieldClickedPos = GetFieldPosByClick();
+        Vector3 newCameraPos = GetPosByFieldPos(fieldClickedPos);
+        SetPos(newCameraPos);
     }
 
 
 
 
 
+
+
+    void DrawPlane(Transform transform)
+    {
+        if (transform != null)
+        {
+            Vector3 center = planeTransform.position;
+            Vector3 normal = planeTransform.forward; // plane's normal
+
+            // corners of a plane on distance from center = planeSize
+            Vector3 right = planeTransform.right * planeSize;
+            Vector3 up = planeTransform.up * planeSize;
+            Vector3 p1 = center + right + up;
+            Vector3 p2 = center + right - up;
+            Vector3 p3 = center - right - up;
+            Vector3 p4 = center - right + up;
+
+            Debug.DrawLine(p1, p2, Color.green);
+            Debug.DrawLine(p2, p3, Color.green);
+            Debug.DrawLine(p3, p4, Color.green);
+            Debug.DrawLine(p4, p1, Color.green);
+
+            // drawing normal
+            Debug.DrawLine(center, center + normal * planeSize, Color.red);
+        }
+    }
 
 }
