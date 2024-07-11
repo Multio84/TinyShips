@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -6,19 +8,19 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     // debug params
-    public Transform planeTransform;
-    public float planeSize = 10f;
+    Transform planeTransform;
+    float planeSize = 10f;
 
     // objects
     public Transform _cameraHolder;
     public GameObject _cameraObject;
-    public Camera _mainCamera;
+    Camera _mainCamera;
     //public GameObject testPlaceObject;
     
     // transform params
     Plane _cameraPlane;
     Vector3 _cameraNormal;
-    public float movementSpeed = 10.0f; // Скорость движения камеры
+    // public float movementSpeed = 10.0f; // Скорость движения камеры
 
 
 
@@ -30,7 +32,8 @@ public class CameraController : MonoBehaviour
     void Update()
     {
         if (Input.GetMouseButtonUp(0)) {
-            Place();
+            //Place();
+            MoveToClick();
         }
 
         // if (Input.GetKey(KeyCode.Space)) {
@@ -40,27 +43,25 @@ public class CameraController : MonoBehaviour
     
     void Initialize()
     {
-        if (_cameraHolder is null || _cameraObject is null || _mainCamera is null) {
+        if (_cameraHolder is null || _cameraObject is null) {
             Debug.LogError("CameraHolder or Camera isn't assigned!");
             return;
         }
 
-        _cameraPlane = GetCameraPlane();
-        _cameraNormal = -_cameraPlane.normal;
-    }
+        _mainCamera = _cameraObject.GetComponent<Camera>();
 
-    Plane GetCameraPlane()
-    {
         Vector3 rotationNormal = _cameraHolder.transform.rotation.eulerAngles;
         Vector3 pointOnPlane = _cameraHolder.transform.position;
 
-        return new Plane(rotationNormal, pointOnPlane);
+        _cameraPlane = new Plane(rotationNormal, pointOnPlane);
+        _cameraNormal = -_cameraPlane.normal;
     }
 
     // get position on gamefield under cursor
     Vector3 GetFieldPosByClick()
     {
-        Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition); // Создаем луч из камеры в направлении курсора мыши
+        // create a ray from camera along cursor's direction
+        Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit)) {
@@ -68,14 +69,16 @@ public class CameraController : MonoBehaviour
                 var fieldPos = hit.point;
                 return fieldPos;
             }
+            Debug.LogError("No intersection with object, tagged as 'GameField'.");
             return Vector3.zero;
         }
+        Debug.LogError("No intersection with any object at all.");
         return Vector3.zero;
     }
 
     Vector3 GetPosByFieldPos(Vector3 fieldPos)
     {
-        _cameraNormal = _cameraHolder.transform.forward;
+        //_cameraNormal = _cameraHolder.transform.forward;
         Ray rayFromGameField = new Ray(fieldPos, -_cameraNormal);
         Debug.DrawRay(rayFromGameField.origin, rayFromGameField.direction * 100, Color.red);
 
@@ -85,7 +88,7 @@ public class CameraController : MonoBehaviour
             intersection = rayFromGameField.GetPoint(distanceToIntersection);
         }
         else {
-            Debug.LogError("Нет пересечения c плоскостью камеры.");
+            Debug.LogError("No intersection with camera plane.");
             return Vector3.zero;
         }
 
@@ -97,19 +100,61 @@ public class CameraController : MonoBehaviour
         _cameraObject.transform.position = pos;
     }
 
-    void Place() 
+
+
+
+    float speed = 0.5f;
+    
+    void MoveToClick()
     {
+        Vector3 currentLocalPos = _cameraObject.transform.localPosition;
+
         Vector3 fieldClickedPos = GetFieldPosByClick();
-        Vector3 newCameraPos = GetPosByFieldPos(fieldClickedPos);
-        SetPos(newCameraPos);
+        Vector3 targetPos = GetPosByFieldPos(fieldClickedPos);
+        Vector3 targetLocalPos = _cameraHolder.transform.InverseTransformPoint(targetPos);
+        
+        _cameraObject.transform.localPosition = targetLocalPos;
+        //StartCoroutine(AnimatePos(currentLocalPos, targetLocalPos));
     }
 
+    IEnumerator AnimatePos(Vector3 startPos, Vector3 targetPos)
+    {
+        // Рассчитываем расстояние между позиций
+        float distance = Vector3.Distance(startPos, targetPos);
+
+        // Рассчитываем время, необходимое для перемещения между позициями с заданной скоростью
+        float duration = distance / speed;
+
+        float elapsedTime = 0f;
+
+        // В цикле постепенно перемещаем объект
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / duration;
+            _cameraObject.transform.localPosition = Vector3.Lerp(startPos, targetPos, t);
+
+            yield return null; // Ждём один кадр
+        }
+
+        // Гарантируем установку конечной позиции
+        _cameraObject.transform.localPosition = targetPos;
+    }
+    
+
+    // void Place() 
+    // {
+    //     Vector3 fieldClickedPos = GetFieldPosByClick();
+    //     Vector3 newCameraPos = GetPosByFieldPos(fieldClickedPos);
+    //     SetPos(newCameraPos);
+    // }
 
 
 
 
 
 
+    // debug method to draw a plane
     void DrawPlane(Transform transform)
     {
         if (transform != null)
