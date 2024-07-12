@@ -104,8 +104,7 @@ public class CameraController : MonoBehaviour
         while (elapsedTime < duration) {
             elapsedTime += Time.deltaTime;
             t = elapsedTime / duration;     // time normalized from 0 to 1
-            float easedT = Mathf.Sin(2);    // easing function
-
+            float easedT = Mathf.Sin(t * Mathf.PI / 2); // easing function
             _cameraObject.transform.localPosition = Vector3.Lerp(start, target, easedT);
 
             yield return null;
