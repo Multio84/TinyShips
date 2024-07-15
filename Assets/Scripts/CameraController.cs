@@ -1,8 +1,18 @@
 using System.Collections;
 using UnityEngine;
 
-public class CameraController : MonoBehaviour
+
+public interface ICameraInputHandler
 {
+    public void MoveByClick();
+}
+
+
+
+public class CameraController : MonoBehaviour, ICameraInputHandler
+{
+    private InputController _inputController;
+
     // objects
     public Transform _cameraHolder;
     public GameObject _cameraObject;
@@ -11,22 +21,23 @@ public class CameraController : MonoBehaviour
     // transform params
     Plane _cameraPlane;
     Vector3 _cameraNormal;
-    //float _moveSpeed = 2.5f;
-    float duration = 1f;    // seconds for camera to move to clicked pos
+    float duration = 1f;    // time in seconds for camera to move to clicked pos
+
 
 
     void Start()
-    {
-        Initialize();
-    }
+    {   
+        // subcscribe to InputController
+        _inputController = FindObjectOfType<InputController>();
+        if (_inputController is not null) {
+            _inputController.SubscribeCameraHandler(this);
+        }
+        else {
+            Debug.LogError("InputController not found!");
+            return;
+        }
 
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0)) MoveToClick();
-    }
-    
-    void Initialize()
-    {
+        // get camera properties for controlling
         if (_cameraHolder is null || _cameraObject is null) {
             Debug.LogError("CameraHolder or Camera isn't assigned!");
             return;
@@ -38,6 +49,24 @@ public class CameraController : MonoBehaviour
 
         _cameraPlane = new Plane(cameraRotationNormal, cameraPointOnPlane);
         _cameraNormal = -_cameraPlane.normal;
+    }
+    
+
+    void OnDisable()
+    {
+        // unsubscribe from InputController
+        if (_inputController is not null) {
+            _inputController.UnsubscribeCameraHandler(this);
+        }
+        else {
+            Debug.LogError("InputController not found!");
+            return;
+        }
+    }
+
+    void Update()
+    {
+        //if (Input.GetMouseButtonDown(0)) MoveByClick();
     }
 
     // get position on gamefield under cursor
@@ -76,7 +105,7 @@ public class CameraController : MonoBehaviour
     }
     
     // place camera by click on game field
-    void PlaceToClick() 
+    void PlaceByClick() 
     {
         Vector3 fieldClickedPos = GetFieldPosByClick();
         Vector3 newWorldPos = GetPosByFieldPos(fieldClickedPos);
@@ -84,7 +113,7 @@ public class CameraController : MonoBehaviour
         _cameraObject.transform.position = newWorldPos;
     }
 
-    void MoveToClick()
+    public void MoveByClick()
     {
         Vector3 startLocalPos = _cameraObject.transform.localPosition;
 
