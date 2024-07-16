@@ -13,8 +13,8 @@ public interface ICameraInputHandler
 
 public class CameraController : MonoBehaviour, ICameraInputHandler
 {
-    private InputController _inputController;
-    //private InputAction _inputAction;
+    InputController _inputController;
+    Coroutine _currentMoveCoroutine;
 
     // objects
     public Transform _cameraHolder;
@@ -115,7 +115,6 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         return intersection;
     }
     
-    // place camera by click on game field
     void PlaceByClick() 
     {
         Vector3 fieldClickedPos = GetFieldPosByClick();
@@ -133,11 +132,13 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         Vector3 targetLocalPos = _cameraHolder.transform.InverseTransformPoint(targetWorldPos);
         targetLocalPos.z = 0;
     
-        StopCoroutine(AnimateLocalPos(startLocalPos, targetLocalPos));
-        StartCoroutine(AnimateLocalPos(startLocalPos, targetLocalPos));
+        if (_currentMoveCoroutine != null) {
+            StopCoroutine(_currentMoveCoroutine);
+        }
+        _currentMoveCoroutine = StartCoroutine( AnimateLocalPos(startLocalPos, targetLocalPos) );
     }
 
-    IEnumerator AnimateLocalPos(Vector3 start, Vector3 target)
+    IEnumerator AnimateLocalPos(Vector3 startPos, Vector3 targetPos)
     {
         float t = 0;
         float elapsedTime = 0;
@@ -146,7 +147,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
             elapsedTime += Time.deltaTime;
             t = elapsedTime / duration;     // time normalized from 0 to 1
             float easedT = Mathf.Sin(t * Mathf.PI / 2); // easing function
-            _cameraObject.transform.localPosition = Vector3.Lerp(start, target, easedT);
+            _cameraObject.transform.localPosition = Vector3.Lerp(startPos, targetPos, easedT);
 
             yield return null;
         }
@@ -156,7 +157,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     {
         _currentZoom = _mainCamera.orthographicSize + Mathf.RoundToInt(context.ReadValue<float>());
         _mainCamera.orthographicSize = Mathf.Clamp(_currentZoom, MinZoom, MaxZoom);
-        //Debug.Log($"Changed camera zoom (size) to {_currentZoom}");
+        //Debug.Log($"Changed camera zoom (size) to {_mainCamera.orthographicSize}");
     }
     
 }
