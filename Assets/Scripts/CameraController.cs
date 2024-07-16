@@ -1,10 +1,12 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 
 public interface ICameraInputHandler
 {
     public void MoveByClick();
+    public void Zoom(InputAction.CallbackContext context);
 }
 
 
@@ -12,6 +14,7 @@ public interface ICameraInputHandler
 public class CameraController : MonoBehaviour, ICameraInputHandler
 {
     private InputController _inputController;
+    //private InputAction _inputAction;
 
     // objects
     public Transform _cameraHolder;
@@ -23,6 +26,11 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     Vector3 _cameraNormal;
     float duration = 1f;    // time in seconds for camera to move to clicked pos
 
+    // zoom
+    const float DefaultZoom = 5f;
+    const float MinZoom = 2f;
+    const float MaxZoom = 10f;
+    float _currentZoom;
 
 
     void Start()
@@ -49,6 +57,9 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
 
         _cameraPlane = new Plane(cameraRotationNormal, cameraPointOnPlane);
         _cameraNormal = -_cameraPlane.normal;
+
+        // set camera properties
+        _currentZoom = DefaultZoom;
     }
     
 
@@ -122,6 +133,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         Vector3 targetLocalPos = _cameraHolder.transform.InverseTransformPoint(targetWorldPos);
         targetLocalPos.z = 0;
     
+        StopCoroutine(AnimateLocalPos(startLocalPos, targetLocalPos));
         StartCoroutine(AnimateLocalPos(startLocalPos, targetLocalPos));
     }
 
@@ -138,6 +150,13 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
 
             yield return null;
         }
+    }
+
+    public void Zoom(InputAction.CallbackContext context)
+    {
+        _currentZoom = _mainCamera.orthographicSize + Mathf.RoundToInt(context.ReadValue<float>());
+        _mainCamera.orthographicSize = Mathf.Clamp(_currentZoom, MinZoom, MaxZoom);
+        //Debug.Log($"Changed camera zoom (size) to {_currentZoom}");
     }
     
 }

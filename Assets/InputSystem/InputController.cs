@@ -7,7 +7,6 @@ public class InputController : MonoBehaviour
     private List<ICameraInputHandler> _cameraSubscribers = new List<ICameraInputHandler>();
 
 
-
     public void SubscribeCameraHandler(ICameraInputHandler handler)
     {
         if (!_cameraSubscribers.Contains(handler)) {
@@ -22,6 +21,8 @@ public class InputController : MonoBehaviour
         }
     }
 
+
+
     public void OnMoveByClick(InputAction.CallbackContext context)
     {
         if (context.phase == InputActionPhase.Performed) {
@@ -30,4 +31,14 @@ public class InputController : MonoBehaviour
             }
         }
     }
+
+    public void OnZoom(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Started) {
+            foreach (var subscriber in _cameraSubscribers) {
+                subscriber.Zoom(context);
+            }
+        }
+    }
+
 }
