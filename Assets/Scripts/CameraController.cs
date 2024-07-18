@@ -1,4 +1,5 @@
 using System.Collections;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,6 +8,8 @@ public interface ICameraInputHandler
 {
     public void MoveByClick();
     public void Zoom(InputAction.CallbackContext context);
+    public void DragEnable(InputAction.CallbackContext context);
+    public void Drag(InputAction.CallbackContext context);
 }
 
 
@@ -41,7 +44,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
             _inputController.SubscribeCameraHandler(this);
         }
         else {
-            Debug.LogError("InputController not found!");
+            Debug.LogError("InputController is not found!");
             return;
         }
 
@@ -62,7 +65,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         _currentZoom = DefaultZoom;
     }
     
-
+    #region - OnDisable -
     void OnDisable()
     {
         // unsubscribe from InputController
@@ -74,11 +77,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
             return;
         }
     }
-
-    void Update()
-    {
-        //if (Input.GetMouseButtonDown(0)) MoveByClick();
-    }
+    #endregion
 
     // get position on gamefield under cursor
     Vector3 GetFieldPosByClick()
@@ -91,8 +90,10 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
                 var fieldPos = hit.point;
                 return fieldPos;
             }
+            Debug.LogError("No camera ray intersection with gamefield plane.");
             return Vector3.zero;
         }
+        Debug.LogError("No camera ray intersection with anything.");
         return Vector3.zero;
     }
 
@@ -109,7 +110,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
             intersection = rayFromGameField.GetPoint(distanceToIntersection);
         }
         else {
-            Debug.LogError("No intersection with camera plane");
+            Debug.LogError("No intersection with camera plane.");
             return Vector3.zero;
         }
         return intersection;
@@ -159,5 +160,53 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         _mainCamera.orthographicSize = Mathf.Clamp(_currentZoom, MinZoom, MaxZoom);
         //Debug.Log($"Changed camera zoom (size) to {_mainCamera.orthographicSize}");
     }
+
+    private Vector2 _previousMousePosition;
+    float dragSpeed = 0.1f;
+    bool _isDragging = false;
     
+    public void DragEnable(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Performed)
+            _isDragging = true;
+        else if (context.phase == InputActionPhase.Canceled)
+            _isDragging = false;
+        else
+            Debug.Log($"Right mouse button has wrong interaction settings: no Performed and Canceled phase");  
+        
+        //Debug.Log($"Phase '{context.phase}', isDragging = {_isDragging}");
+    }
+
+    public void Drag(InputAction.CallbackContext context)
+    {   
+        if (_isDragging)
+        {
+            Debug.Log($"Mouse pos: {context.ReadValue<Vector2>()}");
+
+            Vector2 currentMousePosition = context.ReadValue<Vector2>(); // Считываем текущую позицию мыши
+
+            // Если _previousMousePosition еще не установлена, устанавливаем ее на текущую позицию мыши
+            if (_previousMousePosition == Vector2.zero) {
+                _previousMousePosition = currentMousePosition;
+            }
+
+            Vector2 deltaMousePosition = currentMousePosition - _previousMousePosition; // Вычисляем разницу с предыдущей позицией
+
+            if (deltaMousePosition != Vector2.zero)
+            {
+                Vector3 newCameraPos = _cameraObject.transform.localPosition;
+                newCameraPos -= new Vector3(deltaMousePosition.x, deltaMousePosition.y, 0) * 0.05f; // Добавляем разницу к текущей позиции камеры
+
+                // Можно умножить на коэфициент если нужно сглаживание или другая чувствительность
+                _cameraObject.transform.localPosition = newCameraPos;
+
+                _previousMousePosition = context.ReadValue<Vector2>(); // Обновляем предыдущее положение мыши на текущее для следующего кадра
+            }
+        }
+    }
+
+
+
+
+
 }

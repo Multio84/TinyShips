@@ -41,4 +41,18 @@ public class InputController : MonoBehaviour
         }
     }
 
+    public void OnDragEnable(InputAction.CallbackContext context)
+    {
+        foreach (var subscriber in _cameraSubscribers) {
+            subscriber.DragEnable(context);
+        }
+    }
+
+    public void OnDrag(InputAction.CallbackContext context)
+    {
+        foreach (var subscriber in _cameraSubscribers) {
+            subscriber.Drag(context);
+        }
+    }
+
 }
