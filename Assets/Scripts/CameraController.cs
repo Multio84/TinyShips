@@ -161,47 +161,57 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         //Debug.Log($"Changed camera zoom (size) to {_mainCamera.orthographicSize}");
     }
 
-    private Vector2 _previousMousePosition;
+
     float dragSpeed = 0.1f;
     bool _isDragging = false;
     
     public void DragEnable(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Performed)
+        _previousCameraPos = _cameraObject.transform.localPosition;
+
+        if (context.phase == InputActionPhase.Performed) {
             _isDragging = true;
-        else if (context.phase == InputActionPhase.Canceled)
+        }
+        else if (context.phase == InputActionPhase.Canceled) {
             _isDragging = false;
-        else
-            Debug.Log($"Right mouse button has wrong interaction settings: no Performed and Canceled phase");  
-        
+        }
+        // else {
+        //     Debug.Log($"Right mouse button has wrong interaction settings: no Performed and Canceled phase");  
+        // }
         //Debug.Log($"Phase '{context.phase}', isDragging = {_isDragging}");
     }
+
+    private Vector2 _prevoiusMousePos;
+    private Vector2 _currentMousePos;
+    private Vector3 _previousCameraPos;
+    private const float MouseDragSensitivity = 0.05f;
 
     public void Drag(InputAction.CallbackContext context)
     {   
         if (_isDragging)
         {
-            Debug.Log($"Mouse pos: {context.ReadValue<Vector2>()}");
-
-            Vector2 currentMousePosition = context.ReadValue<Vector2>(); // Считываем текущую позицию мыши
-
-            // Если _previousMousePosition еще не установлена, устанавливаем ее на текущую позицию мыши
-            if (_previousMousePosition == Vector2.zero) {
-                _previousMousePosition = currentMousePosition;
+            _currentMousePos = context.ReadValue<Vector2>();
+            
+            // if previous mouse pos is not set yet
+            if (_prevoiusMousePos == Vector2.zero) {
+                _prevoiusMousePos = _currentMousePos;
             }
 
-            Vector2 deltaMousePosition = currentMousePosition - _previousMousePosition; // Вычисляем разницу с предыдущей позицией
+            Vector2 deltaMousePos = _currentMousePos - _prevoiusMousePos;
 
-            if (deltaMousePosition != Vector2.zero)
+            if (deltaMousePos != Vector2.zero)
             {
-                Vector3 newCameraPos = _cameraObject.transform.localPosition;
-                newCameraPos -= new Vector3(deltaMousePosition.x, deltaMousePosition.y, 0) * 0.05f; // Добавляем разницу к текущей позиции камеры
+                Vector3 deltaCameraPos = new Vector3(deltaMousePos.x, deltaMousePos.y, 0);
+                Vector3 newCameraPos = _previousCameraPos - deltaCameraPos * MouseDragSensitivity;
 
-                // Можно умножить на коэфициент если нужно сглаживание или другая чувствительность
                 _cameraObject.transform.localPosition = newCameraPos;
 
-                _previousMousePosition = context.ReadValue<Vector2>(); // Обновляем предыдущее положение мыши на текущее для следующего кадра
+                _prevoiusMousePos = _currentMousePos;   // update previous mouse pos as current
+                _previousCameraPos = _cameraObject.transform.localPosition;
             }
+        }
+        else {
+            _prevoiusMousePos = context.ReadValue<Vector2>();
         }
     }
 
