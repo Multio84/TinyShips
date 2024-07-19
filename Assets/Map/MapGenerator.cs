@@ -11,8 +11,8 @@ public class MapGenerator : MonoBehaviour
 {
     int _mapSize;    // length of a square side (counted in cells), in which resulting rhomb map will be inscribed
     const float _tileSize = 1; // scale of a square side(x & z) of a tile, can be serialized, if needed
-    public int _mapWidth;
-    public int _mapHeight;
+    public int _mapWidth;   // width length of rhomb map in cells
+    public int _mapHeight;  // height length of rhomb map in cells
 
     public List<GameObject> _tilePrefabs = new List<GameObject>();
     public GameObject _tilePrefab;
@@ -64,14 +64,27 @@ public class MapGenerator : MonoBehaviour
                 (_mapSize - 1) * 2 - x - y < _mapHeight - 1)    // right top
                 continue;                
 
-                 _tiles[x, y] = SpawnTile(x, y);
-                 SetTileSize(_tiles[x, y]);
+                _tiles[x, y] = SpawnTile(x, y);
+                SetTileSize(_tiles[x, y]);
             }
         }
         Debug.Log("Spawned a map.");
     }
 
+    // get left bottom (minX, minY) and right top (maxX, maxY) corners of rhomb map
+    public Vector3[] GetBoundaryCorners()
+    {
+        Vector3[] corners = new Vector3[2];
+        Vector2Int lastCellIndex = new Vector2Int();
 
+        lastCellIndex.x = _mapSize - _mapWidth - 1;
+        lastCellIndex.y = _mapHeight;
+
+        corners[0] = _tiles[0, 0]._tileObject.transform.position;
+        corners[1] = _tiles[lastCellIndex.x, lastCellIndex.y]._tileObject.transform.position;
+
+        return corners;
+    }
 
 
 

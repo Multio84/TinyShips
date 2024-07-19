@@ -17,6 +17,7 @@ public interface ICameraInputHandler
 public class CameraController : MonoBehaviour, ICameraInputHandler
 {
     InputController _inputController;
+    [SerializeField] MapGenerator _mapGenerator;
     Coroutine _currentMoveCoroutine;
 
     // objects
@@ -34,6 +35,13 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     const float MinZoom = 2f;
     const float MaxZoom = 10f;
     float _currentZoom;
+
+    // drag
+    bool _isDragging = false;
+    Vector2 _prevoiusMousePos;
+    Vector2 _currentMousePos;
+    Vector3 _previousCameraPos;
+    const float MouseDragSensitivity = 0.05f;
 
 
     void Start()
@@ -98,7 +106,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     }
 
     // get camera world position by given game field position
-    Vector3 GetPosByFieldPos(Vector3 fieldPos)
+    Vector3 GetLocalPosByFieldPos(Vector3 fieldPos)
     {
         _cameraNormal = _cameraHolder.transform.forward;
         Ray rayFromGameField = new Ray(fieldPos, -_cameraNormal);
@@ -113,15 +121,19 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
             Debug.LogError("No intersection with camera plane.");
             return Vector3.zero;
         }
-        return intersection;
+
+        Vector3 intersectionLocalCoords = _cameraHolder.transform.InverseTransformPoint(intersection);
+        intersectionLocalCoords.z = 0;
+
+        return intersectionLocalCoords;
     }
     
     void PlaceByClick() 
     {
         Vector3 fieldClickedPos = GetFieldPosByClick();
-        Vector3 newWorldPos = GetPosByFieldPos(fieldClickedPos);
+        Vector3 newLocalPos = GetLocalPosByFieldPos(fieldClickedPos);
 
-        _cameraObject.transform.position = newWorldPos;
+        _cameraObject.transform.localPosition = newLocalPos;
     }
 
     public void MoveByClick()
@@ -129,9 +141,11 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         Vector3 startLocalPos = _cameraObject.transform.localPosition;
 
         Vector3 fieldClickedPos = GetFieldPosByClick();
-        Vector3 targetWorldPos = GetPosByFieldPos(fieldClickedPos);
-        Vector3 targetLocalPos = _cameraHolder.transform.InverseTransformPoint(targetWorldPos);
-        targetLocalPos.z = 0;
+        //Vector3 targetWorldPos = GetLocalPosByFieldPos(fieldClickedPos);
+        //Vector3 targetLocalPos = _cameraHolder.transform.InverseTransformPoint(targetWorldPos);
+        //targetLocalPos.z = 0;
+
+        Vector3 targetLocalPos = GetLocalPosByFieldPos(fieldClickedPos);
     
         if (_currentMoveCoroutine != null) {
             StopCoroutine(_currentMoveCoroutine);
@@ -154,16 +168,14 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         }
     }
 
+
+
     public void Zoom(InputAction.CallbackContext context)
     {
         _currentZoom = _mainCamera.orthographicSize + Mathf.RoundToInt(context.ReadValue<float>());
         _mainCamera.orthographicSize = Mathf.Clamp(_currentZoom, MinZoom, MaxZoom);
         //Debug.Log($"Changed camera zoom (size) to {_mainCamera.orthographicSize}");
     }
-
-
-    float dragSpeed = 0.1f;
-    bool _isDragging = false;
     
     public void DragEnable(InputAction.CallbackContext context)
     {
@@ -175,16 +187,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         else if (context.phase == InputActionPhase.Canceled) {
             _isDragging = false;
         }
-        // else {
-        //     Debug.Log($"Right mouse button has wrong interaction settings: no Performed and Canceled phase");  
-        // }
-        //Debug.Log($"Phase '{context.phase}', isDragging = {_isDragging}");
     }
-
-    private Vector2 _prevoiusMousePos;
-    private Vector2 _currentMousePos;
-    private Vector3 _previousCameraPos;
-    private const float MouseDragSensitivity = 0.05f;
 
     public void Drag(InputAction.CallbackContext context)
     {   
