@@ -1,10 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-
-//using System.Numerics;
 using UnityEngine;
+
+
 
 // class for diagonal-shape map generation.
 public class MapGenerator : MonoBehaviour
@@ -20,15 +19,15 @@ public class MapGenerator : MonoBehaviour
     private Grid _grid;
     public Tile[,] _tiles;
 
+    public Action MapCreated;
 
+    // void Start()
+    // {
+    //     Initialize();
+    //     GenerateMap();
+    // }
 
-    void Start()
-    {
-        Initialize();
-        GenerateMap();
-    }
-
-    void Initialize()
+    public void Initialize()
     {
         _mapSize = _mapWidth + _mapHeight - 1;
         _tiles = new Tile[_mapSize, _mapSize];
@@ -44,7 +43,6 @@ public class MapGenerator : MonoBehaviour
         GameObject tile = _tilePrefabs[0];
         var tileSpawned = Instantiate(tile, worldPos, Quaternion.identity, _grid.transform);
         
-
         return tileSpawned.GetComponent<Tile>();
     }
 
@@ -53,7 +51,7 @@ public class MapGenerator : MonoBehaviour
         tile._tileObject.transform.localScale = new Vector3 (_tileSize, 1, _tileSize);
     }
 
-    void GenerateMap()
+    public void GenerateMap()
     {
         for (int y = 0; y < _mapSize; y++) {
             for (int x = 0; x < _mapSize; x++) {
@@ -69,28 +67,22 @@ public class MapGenerator : MonoBehaviour
             }
         }
         Debug.Log("Spawned a map.");
+        //MapCreated?.Invoke();
     }
 
-    // get left bottom (minX, minY) and right top (maxX, maxY) corners of rhomb map
+    // get left bottom (minX, minY) and right top (maxX, maxY) corners world positions of rhomb map
     public Vector3[] GetBoundaryCorners()
     {
         Vector3[] corners = new Vector3[2];
-        Vector2Int lastCellIndex = new Vector2Int();
-
-        lastCellIndex.x = _mapSize - _mapWidth - 1;
-        lastCellIndex.y = _mapHeight;
+        Vector2Int lastCellIndex = new Vector2Int {
+            x = _mapSize - _mapWidth - 1,
+            y = _mapHeight
+        };
 
         corners[0] = _tiles[0, 0]._tileObject.transform.position;
         corners[1] = _tiles[lastCellIndex.x, lastCellIndex.y]._tileObject.transform.position;
 
         return corners;
     }
-
-
-
-
-
-
-
 
 }

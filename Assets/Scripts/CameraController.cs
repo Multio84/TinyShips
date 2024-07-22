@@ -17,7 +17,7 @@ public interface ICameraInputHandler
 public class CameraController : MonoBehaviour, ICameraInputHandler
 {
     InputController _inputController;
-    [SerializeField] MapGenerator _mapGenerator;
+    MapGenerator _mapGenerator;
     Coroutine _currentMoveCoroutine;
 
     // objects
@@ -28,7 +28,8 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     // transform params
     Plane _cameraPlane;
     Vector3 _cameraNormal;
-    float duration = 1f;    // time in seconds for camera to move to clicked pos
+    float _moveAnimDuration = 0.9f;    // time in seconds for camera to move to clicked pos
+    Vector3[] _gamefieldLocalCorners;
 
     // zoom
     const float DefaultZoom = 5f;
@@ -44,6 +45,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     const float MouseDragSensitivity = 0.05f;
 
 
+
     void Start()
     {   
         // subcscribe to InputController
@@ -56,20 +58,29 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
             return;
         }
 
-        // get camera properties for controlling
+        Initialize();
+    }
+
+    //public void Initialize(MapGenerator mapGenerator)
+    public void Initialize()
+    {
+        // subscribe to map generation
+        //mapGenerator.MapCreated += OnMapCreated;
+        
+        //_gamefieldLocalCorners = GetLocalBoundaryCorners();
+
+        // camera transform
         if (_cameraHolder is null || _cameraObject is null) {
             Debug.LogError("CameraHolder or Camera isn't assigned!");
             return;
         }
         _mainCamera = _cameraObject.GetComponent<Camera>();
 
-        Vector3 cameraRotationNormal = _cameraHolder.transform.rotation.eulerAngles;
         Vector3 cameraPointOnPlane = _cameraHolder.transform.position;
+        _cameraNormal = _cameraHolder.transform.forward;
+        _cameraPlane = new Plane(_cameraNormal, cameraPointOnPlane);
 
-        _cameraPlane = new Plane(cameraRotationNormal, cameraPointOnPlane);
-        _cameraNormal = -_cameraPlane.normal;
-
-        // set camera properties
+        // camera zoom
         _currentZoom = DefaultZoom;
     }
     
@@ -105,10 +116,11 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         return Vector3.zero;
     }
 
-    // get camera world position by given game field position
+
+    // get camera local position by given game field position
+    // camera lozal.z position should be = 0 always
     Vector3 GetLocalPosByFieldPos(Vector3 fieldPos)
     {
-        _cameraNormal = _cameraHolder.transform.forward;
         Ray rayFromGameField = new Ray(fieldPos, -_cameraNormal);
         Debug.DrawRay(rayFromGameField.origin, rayFromGameField.direction * 100, Color.red);
 
@@ -127,6 +139,20 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
 
         return intersectionLocalCoords;
     }
+
+    // get camera extreme local positions to prevent moving out of gamefield
+    Vector3[] GetLocalBoundaryCorners()
+    {
+        Vector3[] corners = new Vector3[2];
+        
+        Vector3 leftBottomCorner = _mapGenerator.GetBoundaryCorners()[0];
+        Vector3 rightTopCorner = _mapGenerator.GetBoundaryCorners()[1];
+
+        corners[0] = GetLocalPosByFieldPos(leftBottomCorner);
+        corners[1] = GetLocalPosByFieldPos(rightTopCorner);
+
+        return corners;
+    }
     
     void PlaceByClick() 
     {
@@ -139,13 +165,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     public void MoveByClick()
     {
         Vector3 startLocalPos = _cameraObject.transform.localPosition;
-
-        Vector3 fieldClickedPos = GetFieldPosByClick();
-        //Vector3 targetWorldPos = GetLocalPosByFieldPos(fieldClickedPos);
-        //Vector3 targetLocalPos = _cameraHolder.transform.InverseTransformPoint(targetWorldPos);
-        //targetLocalPos.z = 0;
-
-        Vector3 targetLocalPos = GetLocalPosByFieldPos(fieldClickedPos);
+        Vector3 targetLocalPos = GetLocalPosByFieldPos(GetFieldPosByClick());
     
         if (_currentMoveCoroutine != null) {
             StopCoroutine(_currentMoveCoroutine);
@@ -153,22 +173,30 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         _currentMoveCoroutine = StartCoroutine( AnimateLocalPos(startLocalPos, targetLocalPos) );
     }
 
+    Vector3 LimitCameraPosByField(Vector3 pos)
+    {
+        Vector3 newPos = new Vector3() {
+            x = Mathf.Clamp(pos.x, _gamefieldLocalCorners[0].x, _gamefieldLocalCorners[1].x),
+            y = Mathf.Clamp(pos.y, _gamefieldLocalCorners[0].y, _gamefieldLocalCorners[1].y)
+        };
+
+        return newPos;
+    }
+
     IEnumerator AnimateLocalPos(Vector3 startPos, Vector3 targetPos)
     {
         float t = 0;
         float elapsedTime = 0;
 
-        while (elapsedTime < duration) {
+        while (elapsedTime < _moveAnimDuration) {
             elapsedTime += Time.deltaTime;
-            t = elapsedTime / duration;     // time normalized from 0 to 1
+            t = elapsedTime / _moveAnimDuration;     // time normalized from 0 to 1
             float easedT = Mathf.Sin(t * Mathf.PI / 2); // easing function
             _cameraObject.transform.localPosition = Vector3.Lerp(startPos, targetPos, easedT);
 
             yield return null;
         }
     }
-
-
 
     public void Zoom(InputAction.CallbackContext context)
     {
@@ -206,7 +234,8 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
             {
                 Vector3 deltaCameraPos = new Vector3(deltaMousePos.x, deltaMousePos.y, 0);
                 Vector3 newCameraPos = _previousCameraPos - deltaCameraPos * MouseDragSensitivity;
-
+                
+                //_cameraObject.transform.localPosition = LimitCameraPosByField(newCameraPos);
                 _cameraObject.transform.localPosition = newCameraPos;
 
                 _prevoiusMousePos = _currentMousePos;   // update previous mouse pos as current
@@ -217,6 +246,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
             _prevoiusMousePos = context.ReadValue<Vector2>();
         }
     }
+
 
 
 
