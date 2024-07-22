@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
 
         InitializeComponents();
         MapGenerator.GenerateMap();
+        CameraController.Initialize();
 
         GameMode.StartGame();
     }
@@ -56,7 +57,7 @@ public class GameManager : MonoBehaviour
             Debug.Log("CameraController not found!");
             return;
         }
-        CameraController.Initialize();
+
 
 
         Debug.Log("Initialization done.");

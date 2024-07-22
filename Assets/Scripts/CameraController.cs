@@ -1,5 +1,4 @@
 using System.Collections;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -42,7 +41,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     Vector2 _prevoiusMousePos;
     Vector2 _currentMousePos;
     Vector3 _previousCameraPos;
-    const float MouseDragSensitivity = 0.05f;
+    const float MouseDragSensitivity = 0.01f;
 
 
 
@@ -64,10 +63,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     //public void Initialize(MapGenerator mapGenerator)
     public void Initialize()
     {
-        // subscribe to map generation
-        //mapGenerator.MapCreated += OnMapCreated;
-        
-        //_gamefieldLocalCorners = GetLocalBoundaryCorners();
+        _mapGenerator = GameManager.Instance.MapGenerator;
 
         // camera transform
         if (_cameraHolder is null || _cameraObject is null) {
@@ -79,6 +75,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         Vector3 cameraPointOnPlane = _cameraHolder.transform.position;
         _cameraNormal = _cameraHolder.transform.forward;
         _cameraPlane = new Plane(_cameraNormal, cameraPointOnPlane);
+        _gamefieldLocalCorners = GetLocalBoundaryCorners();
 
         // camera zoom
         _currentZoom = DefaultZoom;
@@ -235,8 +232,8 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
                 Vector3 deltaCameraPos = new Vector3(deltaMousePos.x, deltaMousePos.y, 0);
                 Vector3 newCameraPos = _previousCameraPos - deltaCameraPos * MouseDragSensitivity;
                 
-                //_cameraObject.transform.localPosition = LimitCameraPosByField(newCameraPos);
-                _cameraObject.transform.localPosition = newCameraPos;
+                _cameraObject.transform.localPosition = LimitCameraPosByField(newCameraPos);
+                //_cameraObject.transform.localPosition = newCameraPos;
 
                 _prevoiusMousePos = _currentMousePos;   // update previous mouse pos as current
                 _previousCameraPos = _cameraObject.transform.localPosition;

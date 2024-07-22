@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,20 +16,14 @@ public class MapGenerator : MonoBehaviour
     public GameObject _tilePrefab;
     public GameObject _gridObject;
     private Grid _grid;
-    public Tile[,] _tiles;
+    public Dictionary<Vector2Int, Tile> _tiles = new Dictionary<Vector2Int, Tile>();
 
-    public Action MapCreated;
 
-    // void Start()
-    // {
-    //     Initialize();
-    //     GenerateMap();
-    // }
+
 
     public void Initialize()
     {
         _mapSize = _mapWidth + _mapHeight - 1;
-        _tiles = new Tile[_mapSize, _mapSize];
         _grid = _gridObject.GetComponent<Grid>();
         _grid.cellSize = new Vector3 (_tileSize, 1, _tileSize);
     }
@@ -61,26 +54,35 @@ public class MapGenerator : MonoBehaviour
                 _mapSize - x + y < _mapWidth ||     // right bottom
                 (_mapSize - 1) * 2 - x - y < _mapHeight - 1)    // right top
                 continue;                
-
-                _tiles[x, y] = SpawnTile(x, y);
-                SetTileSize(_tiles[x, y]);
+                
+                Vector2Int tileCoords = new Vector2Int(x, y);
+                _tiles.Add(new Vector2Int(x, y), SpawnTile(x, y));
+                SetTileSize(_tiles[tileCoords]);
             }
         }
         Debug.Log("Spawned a map.");
-        //MapCreated?.Invoke();
     }
 
     // get left bottom (minX, minY) and right top (maxX, maxY) corners world positions of rhomb map
     public Vector3[] GetBoundaryCorners()
     {
         Vector3[] corners = new Vector3[2];
+        
+        Vector2Int firstCellIndex = new Vector2Int {
+            x = _mapHeight - 1,
+            y = 0
+        };
         Vector2Int lastCellIndex = new Vector2Int {
-            x = _mapSize - _mapWidth - 1,
-            y = _mapHeight
+            x = _mapSize - _mapHeight,
+            y = _mapSize - 1
         };
 
-        corners[0] = _tiles[0, 0]._tileObject.transform.position;
-        corners[1] = _tiles[lastCellIndex.x, lastCellIndex.y]._tileObject.transform.position;
+        if (_tiles is null) {
+            Debug.Log("There are no tiles yet!");
+            return null;
+        }
+        corners[0] = _tiles[firstCellIndex]._tileObject.transform.position;
+        corners[1] = _tiles[lastCellIndex]._tileObject.transform.position;
 
         return corners;
     }
