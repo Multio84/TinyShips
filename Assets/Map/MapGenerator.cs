@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
@@ -17,7 +18,16 @@ public class MapGenerator : MonoBehaviour
     public GameObject _gridObject;
     private Grid _grid;
     public Dictionary<Vector2Int, Tile> _tiles = new Dictionary<Vector2Int, Tile>();
+    float _noiseScale = 3f;
 
+    [Serializable]
+    struct TerrainType {
+        public GameObject _tilePrefab;
+        public float _height;
+    }
+
+    [SerializeField]
+    TerrainType[] _tileSet;
 
 
 
@@ -28,14 +38,27 @@ public class MapGenerator : MonoBehaviour
         _grid.cellSize = new Vector3 (_tileSize, 1, _tileSize);
     }
 
-    Tile SpawnTile(int x, int y)
+    Tile SpawnTile(int x, int y, float height)
     {
         var cell = new Vector3Int(x, 0, y);
         var worldPos = _grid.CellToWorld(cell);
+        GameObject tileToSpawn = null;
 
-        GameObject tile = _tilePrefabs[0];
-        var tileSpawned = Instantiate(tile, worldPos, Quaternion.identity, _grid.transform);
+        for (int i = 0; i < _tileSet.Length; i++) {
+            if (height < _tileSet[i]._height) {
+                tileToSpawn = _tileSet[i]._tilePrefab;
+                Debug.Log($"Spawned one of set: {tileToSpawn}, height = {height}.");
+                break;
+            }
+        }
         
+        if (tileToSpawn is null) {
+            Debug.LogError("There is no tile to spawn.");
+            return null;
+        }
+
+        var tileSpawned = Instantiate(tileToSpawn, worldPos, Quaternion.identity, _grid.transform);
+                
         return tileSpawned.GetComponent<Tile>();
     }
 
@@ -44,7 +67,7 @@ public class MapGenerator : MonoBehaviour
         tile._tileObject.transform.localScale = new Vector3 (_tileSize, 1, _tileSize);
     }
 
-    public void GenerateMap()
+    public void GenerateTerrain()
     {
         for (int y = 0; y < _mapSize; y++) {
             for (int x = 0; x < _mapSize; x++) {
@@ -55,12 +78,16 @@ public class MapGenerator : MonoBehaviour
                 (_mapSize - 1) * 2 - x - y < _mapHeight - 1)    // right top
                 continue;                
                 
-                Vector2Int tileCoords = new Vector2Int(x, y);
-                _tiles.Add(new Vector2Int(x, y), SpawnTile(x, y));
-                SetTileSize(_tiles[tileCoords]);
+                float pnX = (float)x / _mapSize * _noiseScale;
+                float pnY = (float)y / _mapSize * _noiseScale;
+                float height = Mathf.PerlinNoise(pnX, pnY);
+
+                Vector2Int cell = new Vector2Int(x, y);
+                _tiles.Add(new Vector2Int(x, y), SpawnTile(x, y, height));
+                SetTileSize(_tiles[cell]);
             }
         }
-        Debug.Log("Spawned a map.");
+        Debug.Log("Terrain created.");
     }
 
     // get left bottom (minX, minY) and right top (maxX, maxY) corners world positions of rhomb map
@@ -77,10 +104,6 @@ public class MapGenerator : MonoBehaviour
             y = _mapSize - 1
         };
 
-        if (_tiles is null) {
-            Debug.Log("There are no tiles yet!");
-            return null;
-        }
         corners[0] = _tiles[firstCellIndex]._tileObject.transform.position;
         corners[1] = _tiles[lastCellIndex]._tileObject.transform.position;
 

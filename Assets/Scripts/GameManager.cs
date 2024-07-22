@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
         }
 
         InitializeComponents();
-        MapGenerator.GenerateMap();
+        MapGenerator.GenerateTerrain();
         CameraController.Initialize();
 
         GameMode.StartGame();

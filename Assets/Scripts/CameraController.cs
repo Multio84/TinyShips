@@ -41,7 +41,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     Vector2 _prevoiusMousePos;
     Vector2 _currentMousePos;
     Vector3 _previousCameraPos;
-    const float MouseDragSensitivity = 0.01f;
+    const float MouseDragSensitivity = 0.03f;
 
 
 
