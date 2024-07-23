@@ -891,8 +891,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 701bccb71baf49748b20f420f078cc7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mapWidth: 20
-  _mapHeight: 15
+  _mapWidth: 40
+  _mapHeight: 40
+  _noiseScale: 10
+  _octaves: 2
+  _persistance: 0.8
+  _lacunarity: 2
+  _seed: 0
+  _offset: {x: 0, y: 0}
   _tilePrefabs:
   - {fileID: 5783919109589757531, guid: c489c2c916ba676418867df45fa8c0a2, type: 3}
   _tilePrefab: {fileID: 5783919109589757531, guid: c489c2c916ba676418867df45fa8c0a2,

@@ -33,7 +33,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     // zoom
     const float DefaultZoom = 5f;
     const float MinZoom = 2f;
-    const float MaxZoom = 10f;
+    const float MaxZoom = 20f;
     float _currentZoom;
 
     // drag

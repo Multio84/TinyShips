@@ -7,19 +7,34 @@ using UnityEngine;
 
 // class for diagonal-shape map generation.
 public class MapGenerator : MonoBehaviour
-{
+{   
+    // map generation
+    [Header("Terrain")]
     int _mapSize;    // length of a square side (counted in cells), in which resulting rhomb map will be inscribed
     const float _tileSize = 1; // scale of a square side(x & z) of a tile, can be serialized, if needed
     public int _mapWidth;   // width length of rhomb map in cells
     public int _mapHeight;  // height length of rhomb map in cells
 
+    // noise generation
+    [Header("Noise")]
+    float[,] _noiseMap;
+    public float _noiseScale;
+    public int _octaves;     // default ~ 4
+    [Range (0, 1)] public float _persistance;   // default 0.5
+    public float _lacunarity;    // default ~ 2
+    public int _seed;
+    public Vector2 _offset;
+
+
+    // objects
     public List<GameObject> _tilePrefabs = new List<GameObject>();
     public GameObject _tilePrefab;
     public GameObject _gridObject;
     private Grid _grid;
     public Dictionary<Vector2Int, Tile> _tiles = new Dictionary<Vector2Int, Tile>();
-    float _noiseScale = 3f;
+    //float _noiseScale = 3f;
 
+    // tiles
     [Serializable]
     struct TerrainType {
         public GameObject _tilePrefab;
@@ -29,7 +44,10 @@ public class MapGenerator : MonoBehaviour
     [SerializeField]
     TerrainType[] _tileSet;
 
-
+    float[,] GenerateNoiseMap() {
+     // generate noiseMap
+        return NoiseMap.GenerateNoiseMap(_mapSize, _seed, _noiseScale, _octaves, _persistance, _lacunarity, _offset);
+    }
 
     public void Initialize()
     {
@@ -45,9 +63,9 @@ public class MapGenerator : MonoBehaviour
         GameObject tileToSpawn = null;
 
         for (int i = 0; i < _tileSet.Length; i++) {
-            if (height < _tileSet[i]._height) {
+            if (height <= _tileSet[i]._height) {
                 tileToSpawn = _tileSet[i]._tilePrefab;
-                Debug.Log($"Spawned one of set: {tileToSpawn}, height = {height}.");
+                //Debug.Log($"Spawned one of set: {tileToSpawn}, height = {height}.");
                 break;
             }
         }
@@ -69,6 +87,8 @@ public class MapGenerator : MonoBehaviour
 
     public void GenerateTerrain()
     {
+        _noiseMap = GenerateNoiseMap();
+
         for (int y = 0; y < _mapSize; y++) {
             for (int x = 0; x < _mapSize; x++) {
                 // exclude corner cells
@@ -78,17 +98,21 @@ public class MapGenerator : MonoBehaviour
                 (_mapSize - 1) * 2 - x - y < _mapHeight - 1)    // right top
                 continue;                
                 
-                float pnX = (float)x / _mapSize * _noiseScale;
-                float pnY = (float)y / _mapSize * _noiseScale;
-                float height = Mathf.PerlinNoise(pnX, pnY);
+                // float pnX = (float)x / _mapSize * _noiseScale;
+                // float pnY = (float)y / _mapSize * _noiseScale;
+                // float height = Mathf.PerlinNoise(pnX, pnY);
+
+                float height = _noiseMap[x, y];
 
                 Vector2Int cell = new Vector2Int(x, y);
                 _tiles.Add(new Vector2Int(x, y), SpawnTile(x, y, height));
-                SetTileSize(_tiles[cell]);
+                //SetTileSize(_tiles[cell]);
             }
         }
         Debug.Log("Terrain created.");
     }
+
+
 
     // get left bottom (minX, minY) and right top (maxX, maxY) corners world positions of rhomb map
     public Vector3[] GetBoundaryCorners()
