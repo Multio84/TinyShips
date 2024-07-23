@@ -32,8 +32,8 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
 
     // zoom
     const float DefaultZoom = 5f;
-    const float MinZoom = 2f;
-    const float MaxZoom = 20f;
+    const float MinZoom = 4f;
+    const float MaxZoom = 14f;
     float _currentZoom;
 
     // drag
@@ -71,6 +71,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
             return;
         }
         _mainCamera = _cameraObject.GetComponent<Camera>();
+        _mainCamera.farClipPlane = 1000;
 
         Vector3 cameraPointOnPlane = _cameraHolder.transform.position;
         _cameraNormal = _cameraHolder.transform.forward;
@@ -114,11 +115,13 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     }
 
 
+
     // get camera local position by given game field position
     // camera lozal.z position should be = 0 always
     Vector3 GetLocalPosByFieldPos(Vector3 fieldPos)
     {
         Ray rayFromGameField = new Ray(fieldPos, -_cameraNormal);
+       
         Debug.DrawRay(rayFromGameField.origin, rayFromGameField.direction * 100, Color.red);
 
         Vector3 intersection;
