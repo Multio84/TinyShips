@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
 
         InitializeComponents();
         MapGenerator.GenerateTerrain();
-        CameraController.Initialize();
+        CameraController.Initialize();  // camera goes after mapGenerator cause it uses field parameters
 
         GameMode.StartGame();
     }
@@ -58,7 +58,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-
+        NoiseMap.Initialize();
 
         Debug.Log("Initialization done.");
     }

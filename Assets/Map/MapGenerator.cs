@@ -55,6 +55,11 @@ public class MapGenerator : MonoBehaviour
         _grid = _gridObject.GetComponent<Grid>();
         _grid.cellSize = new Vector3 (_tileSize, 1, _tileSize);
     }
+    
+    void SetTileSize(GameObject tile)
+    {
+        tile.transform.localScale = new Vector3 (_tileSize, 1, _tileSize);
+    }
 
     Tile SpawnTile(int x, int y, float height)
     {
@@ -76,13 +81,21 @@ public class MapGenerator : MonoBehaviour
         }
 
         var tileSpawned = Instantiate(tileToSpawn, worldPos, Quaternion.identity, _grid.transform);
-                
+        SetTileSize(tileSpawned);
+
         return tileSpawned.GetComponent<Tile>();
     }
 
-    void SetTileSize(Tile tile)
+    public bool IsCellInGrid(int x, int y)
     {
-        tile._tileObject.transform.localScale = new Vector3 (_tileSize, 1, _tileSize);
+        // exclude corner cells
+        if (x + y < _mapHeight - 1 ||       // left bottom
+        _mapSize + x - y < _mapWidth ||     // left top
+        _mapSize - x + y < _mapWidth ||     // right bottom
+        (_mapSize - 1) * 2 - x - y < _mapHeight - 1)    // right top
+            return false;
+        
+        return true;
     }
 
     public void GenerateTerrain()
@@ -91,22 +104,10 @@ public class MapGenerator : MonoBehaviour
 
         for (int y = 0; y < _mapSize; y++) {
             for (int x = 0; x < _mapSize; x++) {
-                // exclude corner cells
-                if (x + y < _mapHeight - 1 ||       // left bottom
-                _mapSize + x - y < _mapWidth ||     // left top
-                _mapSize - x + y < _mapWidth ||     // right bottom
-                (_mapSize - 1) * 2 - x - y < _mapHeight - 1)    // right top
-                continue;                
-                
-                // float pnX = (float)x / _mapSize * _noiseScale;
-                // float pnY = (float)y / _mapSize * _noiseScale;
-                // float height = Mathf.PerlinNoise(pnX, pnY);
-
-                float height = _noiseMap[x, y];
-
-                Vector2Int cell = new Vector2Int(x, y);
-                _tiles.Add(new Vector2Int(x, y), SpawnTile(x, y, height));
-                //SetTileSize(_tiles[cell]);
+                if (IsCellInGrid(x, y)) {
+                    float height = _noiseMap[x, y];
+                    _tiles.Add(new Vector2Int(x, y), SpawnTile(x, y, height));
+                }
             }
         }
         Debug.Log("Terrain created.");

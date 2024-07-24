@@ -35,6 +35,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     const float MinZoom = 4f;
     const float MaxZoom = 14f;
     float _currentZoom;
+    const int _farClipPlane = 1000;
 
     // drag
     bool _isDragging = false;
@@ -71,7 +72,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
             return;
         }
         _mainCamera = _cameraObject.GetComponent<Camera>();
-        _mainCamera.farClipPlane = 1000;
+        _mainCamera.farClipPlane = _farClipPlane;
 
         Vector3 cameraPointOnPlane = _cameraHolder.transform.position;
         _cameraNormal = _cameraHolder.transform.forward;
@@ -113,8 +114,6 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         Debug.LogError("No camera ray intersection with anything.");
         return Vector3.zero;
     }
-
-
 
     // get camera local position by given game field position
     // camera lozal.z position should be = 0 always
