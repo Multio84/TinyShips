@@ -58,8 +58,6 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        NoiseMap.Initialize();
-
         Debug.Log("Initialization done.");
     }
 

@@ -113,8 +113,6 @@ public class MapGenerator : MonoBehaviour
         Debug.Log("Terrain created.");
     }
 
-
-
     // get left bottom (minX, minY) and right top (maxX, maxY) corners world positions of rhomb map
     public Vector3[] GetBoundaryCorners()
     {
