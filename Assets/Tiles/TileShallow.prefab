@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5783919109589757529}
   - component: {fileID: 5783919109589757530}
   m_Layer: 0
-  m_Name: TileWaterDeep
+  m_Name: TileShallow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,9 +45,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 086f1f0a1721e764b9412a1672c1a85b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tileType: 0
-  _height: 0
-  _tileObject: {fileID: 8242130134609953223}
+  _tile: {fileID: 8242130134609953223}
+  Type: 0
+  TerrainType: 1
 --- !u!1 &8242130134609953223
 GameObject:
   m_ObjectHideFlags: 0
@@ -110,7 +110,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 36d13f70e189352418341b2d10f39fdf, type: 2}
+  - {fileID: 2100000, guid: 19ac4e586e0efe24f9862619b0675c19, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -145,4 +145,4 @@ MeshCollider:
   serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 2019513351373138515, guid: 4c47a5270fdccc54d99849aa53526bdf, type: 3}
+  m_Mesh: {fileID: 2019513351373138515, guid: 58717478ea67ef342b94c7a7664d4f0b, type: 3}

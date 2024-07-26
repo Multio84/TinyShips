@@ -16,7 +16,7 @@ public interface ICameraInputHandler
 public class CameraController : MonoBehaviour, ICameraInputHandler
 {
     InputController _inputController;
-    MapGenerator _mapGenerator;
+    WorldGenerator _mapGenerator;
     Coroutine _currentMoveCoroutine;
 
     // objects
@@ -30,12 +30,12 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     float _moveAnimDuration = 0.9f;    // time in seconds for camera to move to clicked pos
     Vector3[] _gamefieldLocalCorners;
 
-    // zoom
+    // zoom & distance
+    const int _farClipPlane = 1000;
     const float DefaultZoom = 5f;
     const float MinZoom = 4f;
     const float MaxZoom = 14f;
     float _currentZoom;
-    const int _farClipPlane = 1000;
 
     // drag
     bool _isDragging = false;
@@ -64,7 +64,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     //public void Initialize(MapGenerator mapGenerator)
     public void Initialize()
     {
-        _mapGenerator = GameManager.Instance.MapGenerator;
+        _mapGenerator = GameManager.Instance.WorldGenerator;
 
         // camera transform
         if (_cameraHolder is null || _cameraObject is null) {

@@ -1,17 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting.Dependencies.NCalc;
 using UnityEngine;
 
 
 
 // class for diagonal-shape map generation.
-public class MapGenerator : MonoBehaviour
+public class WorldGenerator : MonoBehaviour
 {   
-    // map generation
+    // terrain generation
     [Header("Terrain")]
     int _mapSize;    // length of a square side (counted in cells), in which resulting rhomb map will be inscribed
-    const float _tileSize = 1; // scale of a square side(x & z) of a tile, can be serialized, if needed
+    [HideInInspector] public const float _tileSize = 1; // scale of a square side(x & z) of a tile, can be serialized, if needed
     public int _mapWidth;   // width length of rhomb map in cells
     public int _mapHeight;  // height length of rhomb map in cells
 
@@ -27,12 +28,9 @@ public class MapGenerator : MonoBehaviour
 
 
     // objects
-    public List<GameObject> _tilePrefabs = new List<GameObject>();
-    public GameObject _tilePrefab;
     public GameObject _gridObject;
-    private Grid _grid;
+    Grid _grid;
     public Dictionary<Vector2Int, Tile> _tiles = new Dictionary<Vector2Int, Tile>();
-    //float _noiseScale = 3f;
 
     // tiles
     [Serializable]
@@ -45,7 +43,6 @@ public class MapGenerator : MonoBehaviour
     TerrainType[] _tileSet;
 
     float[,] GenerateNoiseMap() {
-     // generate noiseMap
         return NoiseMap.GenerateNoiseMap(_mapSize, _seed, _noiseScale, _octaves, _persistance, _lacunarity, _offset);
     }
 
@@ -83,12 +80,15 @@ public class MapGenerator : MonoBehaviour
         var tileSpawned = Instantiate(tileToSpawn, worldPos, Quaternion.identity, _grid.transform);
         SetTileSize(tileSpawned);
 
+        // var tileComponent = tileSpawned.GetComponent<Tile>();
+        // tileComponent._terrainHeight = height;
+
         return tileSpawned.GetComponent<Tile>();
     }
 
     public bool IsCellInGrid(int x, int y)
     {
-        // exclude corner cells
+        // exclude corner cells to get rhomb-like grid
         if (x + y < _mapHeight - 1 ||       // left bottom
         _mapSize + x - y < _mapWidth ||     // left top
         _mapSize - x + y < _mapWidth ||     // right bottom
@@ -100,7 +100,7 @@ public class MapGenerator : MonoBehaviour
 
     public void GenerateTerrain()
     {
-        _noiseMap = GenerateNoiseMap();
+        //_noiseMap = GenerateNoiseMap();
 
         for (int y = 0; y < _mapSize; y++) {
             for (int x = 0; x < _mapSize; x++) {
@@ -111,6 +111,14 @@ public class MapGenerator : MonoBehaviour
             }
         }
         Debug.Log("Terrain created.");
+    }
+
+    public void GenerateWorld()
+    {
+        _noiseMap = GenerateNoiseMap();
+        GenerateTerrain();
+        TerrainDecorator.SpawnDecorations();
+
     }
 
     // get left bottom (minX, minY) and right top (maxX, maxY) corners world positions of rhomb map
@@ -127,8 +135,8 @@ public class MapGenerator : MonoBehaviour
             y = _mapSize - 1
         };
 
-        corners[0] = _tiles[firstCellIndex]._tileObject.transform.position;
-        corners[1] = _tiles[lastCellIndex]._tileObject.transform.position;
+        corners[0] = _tiles[firstCellIndex]._tile.transform.position;
+        corners[1] = _tiles[lastCellIndex]._tile.transform.position;
 
         return corners;
     }

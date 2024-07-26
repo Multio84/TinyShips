@@ -143,6 +143,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 086f1f0a1721e764b9412a1672c1a85b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tileType: 1
-  _height: 1
-  _tileObject: {fileID: 3637639768947006001}
+  _tile: {fileID: 3637639768947006001}
+  Type: 1
+  TerrainType: 6

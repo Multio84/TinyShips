@@ -34,7 +34,7 @@ public static class NoiseMap
         // fill noisemap with noise
         for (int y = 0; y < mapSize; y++) {
             for (int x = 0; x < mapSize; x++) {
-                if (GameManager.Instance.MapGenerator.IsCellInGrid(x, y)) {
+                if (GameManager.Instance.WorldGenerator.IsCellInGrid(x, y)) {
                     // start values
                     float amplitude = 1;
                     float frequency = 1;
@@ -74,7 +74,7 @@ public static class NoiseMap
         // after getting the actual range of noise values, we loop through all noiseMap values again to normalize them
         for (int y = 0; y < mapSize; y++) {
             for (int x = 0; x < mapSize; x++) {
-                if (GameManager.Instance.MapGenerator.IsCellInGrid(x, y)) {
+                if (GameManager.Instance.WorldGenerator.IsCellInGrid(x, y)) {
                     // InverseLerp returns range [0, 1], so, 
                     // if noiseMap[x, y] == minNoiseHeight => 0
                     // if noiseMap[x, y] == maxNoiseHeight => 1
