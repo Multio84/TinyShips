@@ -26,7 +26,6 @@ public class WorldGenerator : MonoBehaviour
     public int _seed;
     public Vector2 _offset;
 
-
     // objects
     public GameObject _gridObject;
     Grid _grid;
@@ -34,13 +33,16 @@ public class WorldGenerator : MonoBehaviour
 
     // tiles
     [Serializable]
-    struct TerrainType {
+    class TerrainType {
         public GameObject _tilePrefab;
         public float _height;
     }
 
     [SerializeField]
     TerrainType[] _tileSet;
+
+
+
 
     float[,] GenerateNoiseMap() {
         return NoiseMap.GenerateNoiseMap(_mapSize, _seed, _noiseScale, _octaves, _persistance, _lacunarity, _offset);
@@ -55,7 +57,7 @@ public class WorldGenerator : MonoBehaviour
     
     void SetTileSize(GameObject tile)
     {
-        tile.transform.localScale = new Vector3 (_tileSize, 1, _tileSize);
+        tile.transform.localScale = _grid.cellSize;//new Vector3 (_tileSize, 1, _tileSize);
     }
 
     Tile SpawnTile(int x, int y, float height)
@@ -79,9 +81,6 @@ public class WorldGenerator : MonoBehaviour
 
         var tileSpawned = Instantiate(tileToSpawn, worldPos, Quaternion.identity, _grid.transform);
         SetTileSize(tileSpawned);
-
-        // var tileComponent = tileSpawned.GetComponent<Tile>();
-        // tileComponent._terrainHeight = height;
 
         return tileSpawned.GetComponent<Tile>();
     }
@@ -117,7 +116,7 @@ public class WorldGenerator : MonoBehaviour
     {
         _noiseMap = GenerateNoiseMap();
         GenerateTerrain();
-        TerrainDecorator.SpawnDecorations();
+        GameManager.Instance.TerrainDecorator.SpawnDecorations(_tiles);
 
     }
 

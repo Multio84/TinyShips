@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
 
     public GameMode GameMode {get; private set;}
     public WorldGenerator WorldGenerator {get; private set;}
+    public TerrainDecorator TerrainDecorator {get; private set;}
     public CameraController CameraController {get; private set;}
     public PlayerController PlayerController {get; private set;}
 
@@ -25,7 +26,6 @@ public class GameManager : MonoBehaviour
         }
 
         InitializeComponents();
-        //WorldGenerator.GenerateTerrain();
         WorldGenerator.GenerateWorld();
         CameraController.Initialize();  // camera goes after mapGenerator cause it uses field parameters
 
@@ -52,6 +52,13 @@ public class GameManager : MonoBehaviour
             return;
         }
         WorldGenerator.Initialize();
+
+        TerrainDecorator = FindObjectOfType<TerrainDecorator>();
+        if (TerrainDecorator is null) {
+            Debug.Log("TerrainDecorator not found!");
+            return;
+        }
+        
 
         CameraController = FindObjectOfType<CameraController>();
         if (CameraController is null) {

@@ -145,4 +145,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _tile: {fileID: 4786950266001315645}
   Type: 1
-  TerrainType: 2
+  BiomType: 2

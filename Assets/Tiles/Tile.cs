@@ -7,7 +7,7 @@ public enum TileType {
     Reef
 }
 
-public enum TileTerrainType {
+public enum TileBiomType {
     Water,
     Shallow,
     Sand,
@@ -24,7 +24,7 @@ public class Tile : MonoBehaviour
     // set these manually:
     public GameObject _tile;
     public TileType Type;
-    public TileTerrainType TerrainType;
+    public TileBiomType BiomType;
     
     // tile X & Z size
     public float Size {get => WorldGenerator._tileSize;}
@@ -37,7 +37,7 @@ public class Tile : MonoBehaviour
                 return 0;
             }
             else {
-                return _tile.transform.localScale.x / 10;
+                return _tile.transform.localScale.y / 20;
             }
         }
     }
