@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 /*
@@ -14,75 +13,100 @@ public class TerrainDecorator : MonoBehaviour
 {
     public GameObject _spawnerTriplePrefab;
     
-    [SerializeField] List<GameObject> _sandDecorations;
-    [SerializeField] List<GameObject> _grass1Decorations;
-    [SerializeField] List<GameObject> _grass3Decorations;
+
+
+    // [SerializeField] List<GameObject> _sandDecorations;
+    // [SerializeField] List<GameObject> _grass1Decorations;
+    // [SerializeField] List<GameObject> _grass3Decorations;
+
+    // private List<Decoration> _decorations;
+    
+
+
+    // // void Start()
+    // // {
+    // //     LoadDecorations();
+    // // }
+
+    // void LoadDecorations()
+    // {
+    //     _decorations = new List<Decoration>(Resources.LoadAll<Decoration>(""));
+    // }
+
+    // public List<Decoration> GetAllDecorations()
+    // {
+    //     return _decorations;
+    // }
 
 
 
-    GameObject PlaceSpawner(Tile tile)
-    {
-        var tilePos = tile.transform.position;
-        var tileHeight = tile.Height;
-        var spawner = Instantiate(_spawnerTriplePrefab, tile.transform);
-        spawner.transform.position += new Vector3(0, tileHeight, 0);
-
-        return spawner;
-    }
-
-    GameObject GetRandomDecorationPrefab(List<GameObject> decorations)
-    {
-        int randomIndex = Random.Range(0, decorations.Count);
-        return decorations[randomIndex];
-    }
 
 
-    void SpawnDecoration(List<GameObject> decorations, Tile tile)
-    {
-        // Vector3 tilePos = tile.gameObject.transform.position;
-        // float tileHeight = tile.Height;
-        // Vector3 decorationPos = new Vector3(tilePos.x, tilePos.y + tileHeight, tilePos.z);
-
-        // float randomYRot = Random.Range(0, 360f);
-        // Quaternion decorationRot = Quaternion.Euler(0, randomYRot, 0);
 
 
-        GameObject spawner = PlaceSpawner(tile);
-        GameObject[] places = spawner.GetComponent<DecorationSpawnerTriple>().GetPlaces();
+    /*
+    вероятность появления деревьев:
 
-        GameObject decoration;
-
-        foreach (var place in places) {
-            var decorationPrefab = GetRandomDecorationPrefab(decorations);
-            decoration = Instantiate(decorationPrefab, place.transform);
-            //var tileObject = tile.gameObject;
-            decoration.transform.SetParent(tile.gameObject.transform);
-            Debug.Log($"Spawned {decoration} in pos = {decoration.transform.localPosition} with rot = {decoration.transform.localRotation}");
-        }
-
-        //Destroy(spawner);
+    У каждого дерева есть вероятность появления в том или ином биоме
+    У каждой клетки есть вероятность появления дерева в определённом количестве: 0, 1, 2 или 3
 
 
-        // int randomIndex = Random.Range(0, decorations.Count);
-        // var decorationPrefab = decorations[randomIndex];
-        // var decoration = Instantiate(decorationPrefab, decorationPos, decorationRot);
-        // decoration = transform.parent.gameObject;
+    */
+
+    // decides how many decorations will be spawned, based on decorations
+    // GameObject SelectSpawner(float chance)
+    // {
+        
+    // }
 
 
-    }
+    // GameObject PlaceSpawner(Tile tile)
+    // {
+    //     var tileHeight = tile.Height;
+    //     var spawner = Instantiate(_spawnerTriplePrefab, tile.transform);
+    //     spawner.transform.position += new Vector3(0, tileHeight, 0);
+
+    //     return spawner;
+    // }
+
+    // GameObject GetRandomDecorationPrefab(List<GameObject> decorations)
+    // {
+    //     int randomIndex = Random.Range(0, decorations.Count);
+    //     return decorations[randomIndex];
+    // }
+
+
+    // void SpawnDecoration(List<GameObject> decorations, Tile tile)
+    // {
+    //     GameObject spawner = PlaceSpawner(tile);
+    //     GameObject[] placesToSpawn = spawner.GetComponent<DecorationSpawnerTriple>().GetPlaces();
+    //     List<Decoration> decorations = GetAllDecorations();
+
+    //     foreach (var place in placesToSpawn) {
+    //         var decorationPrefab = GetRandomDecorationPrefab(decorations);
+    //         decoration = Instantiate(decorationPrefab, place.transform);
+    //         //var tileObject = tile.gameObject;
+    //         decoration.transform.SetParent(tile.gameObject.transform);
+    //         Debug.Log($"Spawned {decoration} in pos = {decoration.transform.localPosition} with rot = {decoration.transform.localRotation}");
+    //     }
+
+    //     //Destroy(spawner);
+    // }
 
     
-    public void SpawnDecorations(Dictionary<Vector2Int, Tile> _tiles)
-    {
-        foreach(var tileEntry in _tiles) {
-            //var tilePos = tileEntry.Key;
-            var tile = tileEntry.Value;
+    // public void SpawnDecorations(Dictionary<Vector2Int, Tile> _tiles)
+    // {
+    //     LoadDecorations();
 
-            if (tile.BiomType == TileBiomType.Grass1) {
-                SpawnDecoration(_grass1Decorations, tile);
-            }
+    //     foreach(var tileEntry in _tiles) {
+    //         //var tilePos = tileEntry.Key;
+    //         var tile = tileEntry.Value;
+
+    //         if (tile.BiomeType == TileBiomeType.Grass1) {
+    //             SpawnDecoration(_grass1Decorations, tile);
+    //         }
             
-        }
+    //     }
 
-    }
+    // }
 }

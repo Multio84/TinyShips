@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e69033274cea37546a8decb16066b748, type: 3}
+  m_Name: TileGrass3
+  m_EditorClassIdentifier: 
+  _type: 1
+  _biomeType: 5
+  _spawnChances:
+  - DecorationType: 0
+    SpawnChance: 0.9
+  - DecorationType: 1
+    SpawnChance: 0.3
+  - DecorationType: 2
+    SpawnChance: 0.7
+  _prefab: {fileID: 6169785503528061456, guid: a449dbddcfb1efc438b5a0b8ee220637, type: 3}

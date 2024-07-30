@@ -984,7 +984,7 @@ GameObject:
   - component: {fileID: 812759624}
   - component: {fileID: 812759623}
   m_Layer: 0
-  m_Name: MapGenerator
+  m_Name: WorldGenerator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1010,28 +1010,21 @@ MonoBehaviour:
   _lacunarity: 2
   _seed: 1
   _offset: {x: 0, y: 0}
-  _gridObject: {fileID: 957757299}
+  Grid: {fileID: 957757299}
   _tileSet:
-  - _tilePrefab: {fileID: 5783919109589757531, guid: c489c2c916ba676418867df45fa8c0a2,
-      type: 3}
+  - _tile: {fileID: 11400000, guid: 15cfbd50976cdc543a2b05abf8e30335, type: 2}
     _height: 0.55
-  - _tilePrefab: {fileID: 5783919109589757531, guid: 524ce93eb7a24f940a0f44b8021740ba,
-      type: 3}
+  - _tile: {fileID: 11400000, guid: 5dda6c8522010424a9c9312d30179b75, type: 2}
     _height: 0.66
-  - _tilePrefab: {fileID: 6169785503528061456, guid: 36309168eb14bf0439a4353c5238e363,
-      type: 3}
+  - _tile: {fileID: 11400000, guid: c5f47f8efc09db74eb30745800ea85be, type: 2}
     _height: 0.72
-  - _tilePrefab: {fileID: 6169785503528061456, guid: 7e7b26cf693b2544c905169a80082951,
-      type: 3}
+  - _tile: {fileID: 11400000, guid: 687b9d3bc174453409cc3f1a2ba1dcc8, type: 2}
     _height: 0.8
-  - _tilePrefab: {fileID: 6169785503528061456, guid: 89a4b9f4e6e9844449bf8a945daccf81,
-      type: 3}
+  - _tile: {fileID: 11400000, guid: 64a608364c333514993e220b9750cd52, type: 2}
     _height: 0.9
-  - _tilePrefab: {fileID: 6169785503528061456, guid: a449dbddcfb1efc438b5a0b8ee220637,
-      type: 3}
+  - _tile: {fileID: 11400000, guid: e7544925e1f4b6d4299957521ceb6a2a, type: 2}
     _height: 0.95
-  - _tilePrefab: {fileID: 6169785503528061456, guid: f90bc4370d8ed6543ba86ed701b2146e,
-      type: 3}
+  - _tile: {fileID: 11400000, guid: b2895a6352cfc9e458ace2eb2ee09e7f, type: 2}
     _height: 1
 --- !u!4 &812759624
 Transform:
@@ -1558,11 +1551,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _spawnerTriplePrefab: {fileID: 8535918075950400731, guid: 96e3ab2b6b2713e46b3bcec7e0ccfd9f,
     type: 3}
-  _sandDecorations: []
-  _grass1Decorations:
-  - {fileID: 196109322898365877, guid: 6a29f1a83536f4345a62b5ea57796934, type: 3}
-  - {fileID: 1546769651317489396, guid: 721a05a60521bce45b9aa405a142c379, type: 3}
-  _grass3Decorations: []
 --- !u!1001 &1333570065
 PrefabInstance:
   m_ObjectHideFlags: 0

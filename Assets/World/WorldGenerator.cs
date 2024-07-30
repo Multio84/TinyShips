@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting.Dependencies.NCalc;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -9,7 +8,7 @@ using UnityEngine;
 // class for diagonal-shape map generation.
 public class WorldGenerator : MonoBehaviour
 {   
-    // terrain generation
+    // map
     [Header("Terrain")]
     int _mapSize;    // length of a square side (counted in cells), in which resulting rhomb map will be inscribed
     [HideInInspector] public const float _tileSize = 1; // scale of a square side(x & z) of a tile, can be serialized, if needed
@@ -27,20 +26,24 @@ public class WorldGenerator : MonoBehaviour
     public Vector2 _offset;
 
     // objects
-    public GameObject _gridObject;
-    Grid _grid;
-    public Dictionary<Vector2Int, Tile> _tiles = new Dictionary<Vector2Int, Tile>();
+    [Header("Objects")]
+    [SerializeField] GameObject Grid;
+    Grid _gridComponent;
 
     // tiles
     [Serializable]
-    class TerrainType {
-        public GameObject _tilePrefab;
-        public float _height;
+    class TileHeight {
+        [SerializeField] Tile _tile;
+        [SerializeField] float _height;
+
+        public Tile Tile => _tile;
+        public float Height => _height;
     }
 
-    [SerializeField]
-    TerrainType[] _tileSet;
-
+    [SerializeField] TileHeight[] _tileSet;
+    Dictionary<Vector2Int, TileComponent> _tiles = new Dictionary<Vector2Int, TileComponent>();
+    public Dictionary<Vector2Int, TileComponent> Tiles { get => _tiles; }
+        
 
 
 
@@ -51,38 +54,13 @@ public class WorldGenerator : MonoBehaviour
     public void Initialize()
     {
         _mapSize = _mapWidth + _mapHeight - 1;
-        _grid = _gridObject.GetComponent<Grid>();
-        _grid.cellSize = new Vector3 (_tileSize, 1, _tileSize);
+        _gridComponent = Grid.GetComponent <Grid> ();
+        _gridComponent.cellSize = new Vector3 (_tileSize, 1, _tileSize);
     }
     
     void SetTileSize(GameObject tile)
     {
-        tile.transform.localScale = _grid.cellSize;//new Vector3 (_tileSize, 1, _tileSize);
-    }
-
-    Tile SpawnTile(int x, int y, float height)
-    {
-        var cell = new Vector3Int(x, 0, y);
-        var worldPos = _grid.CellToWorld(cell);
-        GameObject tileToSpawn = null;
-
-        for (int i = 0; i < _tileSet.Length; i++) {
-            if (height <= _tileSet[i]._height) {
-                tileToSpawn = _tileSet[i]._tilePrefab;
-                //Debug.Log($"Spawned one of set: {tileToSpawn}, height = {height}.");
-                break;
-            }
-        }
-        
-        if (tileToSpawn is null) {
-            Debug.LogError("There is no tile to spawn.");
-            return null;
-        }
-
-        var tileSpawned = Instantiate(tileToSpawn, worldPos, Quaternion.identity, _grid.transform);
-        SetTileSize(tileSpawned);
-
-        return tileSpawned.GetComponent<Tile>();
+        tile.transform.localScale = _gridComponent.cellSize;
     }
 
     public bool IsCellInGrid(int x, int y)
@@ -97,6 +75,37 @@ public class WorldGenerator : MonoBehaviour
         return true;
     }
 
+    Tile GetTileByHeight(float height)
+    {
+        for (int i = 0; i < _tileSet.Length; i++) {
+            if (height <= _tileSet[i].Height) {
+                return _tileSet[i].Tile;
+            }
+        }
+        Debug.LogError($"Tile with height < {height} not found.");
+        return null;
+    }
+
+    TileComponent SpawnTile(int x, int y, float height)
+    {
+        var cell = new Vector3Int(x, 0, y);
+        var worldPos = _gridComponent.CellToWorld(cell);
+
+        Tile tileToSpawn = GetTileByHeight(height);
+        if (tileToSpawn is null) {
+            Debug.LogError("There is no tile to spawn.");
+            return null;
+        }
+
+        var tileSpawned = Instantiate(tileToSpawn.Prefab, worldPos, Quaternion.identity, _gridComponent.transform);
+        SetTileSize(tileSpawned);
+
+        TileComponent tileComponent = tileSpawned.AddComponent<TileComponent>();
+        tileComponent.Initialize(tileToSpawn);
+
+        return tileComponent;
+    }
+
     public void GenerateTerrain()
     {
         //_noiseMap = GenerateNoiseMap();
@@ -105,7 +114,7 @@ public class WorldGenerator : MonoBehaviour
             for (int x = 0; x < _mapSize; x++) {
                 if (IsCellInGrid(x, y)) {
                     float height = _noiseMap[x, y];
-                    _tiles.Add(new Vector2Int(x, y), SpawnTile(x, y, height));
+                    Tiles.Add(new Vector2Int(x, y), SpawnTile(x, y, height));
                 }
             }
         }
@@ -116,7 +125,7 @@ public class WorldGenerator : MonoBehaviour
     {
         _noiseMap = GenerateNoiseMap();
         GenerateTerrain();
-        GameManager.Instance.TerrainDecorator.SpawnDecorations(_tiles);
+        //GameManager.Instance.TerrainDecorator.SpawnDecorations(_tiles);
 
     }
 
@@ -134,8 +143,8 @@ public class WorldGenerator : MonoBehaviour
             y = _mapSize - 1
         };
 
-        corners[0] = _tiles[firstCellIndex]._tile.transform.position;
-        corners[1] = _tiles[lastCellIndex]._tile.transform.position;
+        corners[0] = Tiles[firstCellIndex].gameObject.transform.position;
+        corners[1] = Tiles[lastCellIndex].gameObject.transform.position;
 
         return corners;
     }
