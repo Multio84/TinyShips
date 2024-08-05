@@ -14,19 +14,19 @@ public enum DecorationType
 public class BiomeSpawnChance
 {
     public BiomeType BiomeType;
-    public float SpawnChance;   
+    public float SpawnChance;
 }
 
 [CreateAssetMenu(fileName = "Decoration", menuName = "Terrain/Decoration")]
 public class Decoration : TerrainObject
 {
-    [SerializeField] private DecorationType _decorationType;
+    [SerializeField] private DecorationType _type;
     [SerializeField] private GameObject _prefab;
-    [SerializeField] private List <BiomeSpawnChance> _spawnChances = new List <BiomeSpawnChance>();
+    [SerializeField] private List <BiomeSpawnChance> _biomeSpawnChances = new List <BiomeSpawnChance>();
 
-    public DecorationType DecorationType => _decorationType;
+    public DecorationType Type => _type;
     public override GameObject Prefab => _prefab;
-    public List <BiomeSpawnChance> SpawnChances => _spawnChances;
+    public List <BiomeSpawnChance> BiomeSpawnChances => _biomeSpawnChances;   // spawn chances of this decoration for each biome
 
     private void OnEnable()
     {
@@ -39,7 +39,7 @@ public class Decoration : TerrainObject
         foreach (BiomeType biomeType in System.Enum.GetValues(typeof(BiomeType)))
         {
             bool chanceIsSet = false;
-            foreach (var spawnChance in _spawnChances) {
+            foreach (var spawnChance in _biomeSpawnChances) {
                 if (spawnChance.BiomeType == biomeType) {
                     chanceIsSet = true;
                     break;
@@ -47,7 +47,7 @@ public class Decoration : TerrainObject
             }
 
             if (!chanceIsSet) {
-                _spawnChances.Add(new BiomeSpawnChance { BiomeType = biomeType, SpawnChance = 0f });
+                _biomeSpawnChances.Add(new BiomeSpawnChance { BiomeType = biomeType, SpawnChance = 0f });
             }
         }
     }

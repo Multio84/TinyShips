@@ -11,7 +11,6 @@ public class WorldGenerator : MonoBehaviour
     // map
     [Header("Terrain")]
     int _mapSize;    // length of a square side (counted in cells), in which resulting rhomb map will be inscribed
-    [HideInInspector] public const float _tileSize = 1; // scale of a square side(x & z) of a tile, can be serialized, if needed
     public int _mapWidth;   // width length of rhomb map in cells
     public int _mapHeight;  // height length of rhomb map in cells
 
@@ -31,6 +30,8 @@ public class WorldGenerator : MonoBehaviour
     Grid _gridComponent;
 
     // tiles
+    [HideInInspector] public const float TileSize = 1; // scale of a square side(x & z) of a tile, can be serialized, if needed
+    [HideInInspector] public const float TileHeightModifier = 0.05f;
     [Serializable]
     class TileHeight {
         [SerializeField] Tile _tile;
@@ -39,9 +40,8 @@ public class WorldGenerator : MonoBehaviour
         public Tile Tile => _tile;
         public float Height => _height;
     }
-
-    [SerializeField] TileHeight[] _tileSet;
-    Dictionary<Vector2Int, TileComponent> _tiles = new Dictionary<Vector2Int, TileComponent>();
+    [SerializeField] TileHeight[] _tileSet;     // tiles to spawn, divided by height levels
+    Dictionary<Vector2Int, TileComponent> _tiles = new Dictionary<Vector2Int, TileComponent>(); // spawned tiles
     public Dictionary<Vector2Int, TileComponent> Tiles { get => _tiles; }
         
 
@@ -55,8 +55,10 @@ public class WorldGenerator : MonoBehaviour
     {
         _mapSize = _mapWidth + _mapHeight - 1;
         _gridComponent = Grid.GetComponent <Grid> ();
-        _gridComponent.cellSize = new Vector3 (_tileSize, 1, _tileSize);
+        _gridComponent.cellSize = new Vector3 (TileSize, 1, TileSize);
     }
+
+
     
     void SetTileSize(GameObject tile)
     {
@@ -77,6 +79,11 @@ public class WorldGenerator : MonoBehaviour
 
     Tile GetTileByHeight(float height)
     {
+        if (_tileSet is null) {
+            Debug.LogError("TileSet for terrain generation is empty");
+            return null;
+        }
+
         for (int i = 0; i < _tileSet.Length; i++) {
             if (height <= _tileSet[i].Height) {
                 return _tileSet[i].Tile;
@@ -100,7 +107,7 @@ public class WorldGenerator : MonoBehaviour
         var tileSpawned = Instantiate(tileToSpawn.Prefab, worldPos, Quaternion.identity, _gridComponent.transform);
         SetTileSize(tileSpawned);
 
-        TileComponent tileComponent = tileSpawned.AddComponent<TileComponent>();
+        TileComponent tileComponent = tileSpawned.GetComponent<TileComponent>();
         tileComponent.Initialize(tileToSpawn);
 
         return tileComponent;
@@ -108,8 +115,6 @@ public class WorldGenerator : MonoBehaviour
 
     public void GenerateTerrain()
     {
-        //_noiseMap = GenerateNoiseMap();
-
         for (int y = 0; y < _mapSize; y++) {
             for (int x = 0; x < _mapSize; x++) {
                 if (IsCellInGrid(x, y)) {
@@ -121,11 +126,25 @@ public class WorldGenerator : MonoBehaviour
         Debug.Log("Terrain created.");
     }
 
+    bool IsValid()
+    {
+        foreach (var element in _tileSet) {
+            if (element.Tile is null) {
+                Debug.LogError("TileSet for terrain is empty. Generation cancelled.");
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void GenerateWorld()
     {
+        if (!IsValid()) {
+            return;
+        }
         _noiseMap = GenerateNoiseMap();
         GenerateTerrain();
-        //GameManager.Instance.TerrainDecorator.SpawnDecorations(_tiles);
+        GameManager.Instance.TerrainDecorator.Decorate(Tiles);
 
     }
 

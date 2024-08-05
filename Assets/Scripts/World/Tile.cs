@@ -27,27 +27,10 @@ public class Tile : TerrainObject
 
     public TileType Type => _type;
     public BiomeType BiomeType => _biomeType;
-    public List <DecorationTypeSpawnChance> SpawnChances => _spawnChances;
+    public List <DecorationTypeSpawnChance> SpawnChances => _spawnChances;  // spawn chances of each decoration type to be spawned on this biome
     public override GameObject Prefab => _prefab;
-        
-    // tile X & Z size
-    public float Size { get => WorldGenerator._tileSize; }
 
-    // tile Y size
-    const float TileHeightModifier = 0.05f;
-    public float Height {
-        get {
-            if (_prefab is null) {
-                Debug.Log("There's no tile object assigned to Tile");
-                return 0;
-            }
-            else {
-                return _prefab.transform.localScale.y * TileHeightModifier;
-            }
-        }
-    }
 
-    
     private void OnEnable()
     {
         InitAllDecorationsChance();

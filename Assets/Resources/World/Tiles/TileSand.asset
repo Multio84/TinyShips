@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e69033274cea37546a8decb16066b748, type: 3}
-  m_Name: TileGrass1
+  m_Name: TileSand
   m_EditorClassIdentifier: 
   _type: 1
-  _biomeType: 1
+  _biomeType: 2
   _spawnChances:
   - DecorationType: 0
-    SpawnChance: 0.5
+    SpawnChance: 0.3
   - DecorationType: 1
-    SpawnChance: 0.8
+    SpawnChance: 0
   - DecorationType: 2
-    SpawnChance: 0.5
-  _prefab: {fileID: 6169785503528061456, guid: 7e7b26cf693b2544c905169a80082951, type: 3}
+    SpawnChance: 0.45
+  _prefab: {fileID: 6169785503528061456, guid: 36309168eb14bf0439a4353c5238e363, type: 3}
