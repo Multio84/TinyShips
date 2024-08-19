@@ -20,13 +20,14 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     Coroutine _currentMoveCoroutine;
 
     // objects
+    public Transform _cameraRoot;
     public Transform _cameraHolder;
     public GameObject _cameraObject;
     public Camera _mainCamera;
     
     // transform params
-    Plane _cameraPlane;
-    Vector3 _cameraNormal;
+    Plane _cameraHolderPlane;   // plane in which cameraHolder is moving
+    Vector3 _cameraNormal;      // normal for getting the camera direction
     float _moveAnimDuration = 0.9f;    // time in seconds for camera to move to clicked pos
     Vector3[] _gamefieldLocalCorners;
 
@@ -41,7 +42,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     bool _isDragging = false;
     Vector2 _prevoiusMousePos;
     Vector2 _currentMousePos;
-    Vector3 _previousCameraPos;
+    Vector3 _previousCameraHolderPos;
     const float MouseDragSensitivity = 0.03f;
 
 
@@ -61,7 +62,6 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         Initialize();
     }
 
-    //public void Initialize(MapGenerator mapGenerator)
     public void Initialize()
     {
         _mapGenerator = GameManager.Instance.WorldGenerator;
@@ -74,10 +74,10 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         _mainCamera = _cameraObject.GetComponent<Camera>();
         _mainCamera.farClipPlane = _farClipPlane;
 
-        Vector3 cameraPointOnPlane = _cameraHolder.transform.position;
-        _cameraNormal = _cameraHolder.transform.forward;
-        _cameraPlane = new Plane(_cameraNormal, cameraPointOnPlane);
-        _gamefieldLocalCorners = GetLocalBoundaryCorners();
+        _cameraNormal = _cameraObject.transform.forward;
+        _cameraHolderPlane = new Plane(-_cameraHolder.up, _cameraHolder.transform.position);
+
+        _gamefieldLocalCorners = GetCameraLocalBoundaryCorners();
 
         // camera zoom
         _currentZoom = DefaultZoom;
@@ -97,6 +97,21 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     }
     #endregion
 
+    // get cameraHolder extreme local positions to prevent moving out of gamefield
+    Vector3[] GetCameraLocalBoundaryCorners()
+    {
+        Vector3[] terrainCorners = _mapGenerator.GetBoundaryCorners();
+        Vector3[] localCameraHolderCorners = new Vector3[2];
+
+        for (int i = 0; i < terrainCorners.Length; i++)
+        {
+            Vector3 cameraHolderCorner = GetCameraHolderPosByFieldPos(terrainCorners[i]);
+            localCameraHolderCorners[i] = _cameraHolder.InverseTransformPoint(cameraHolderCorner);
+        }
+
+        return localCameraHolderCorners;
+    }
+
     // get position on gamefield under cursor
     Vector3 GetFieldPosByClick()
     {
@@ -115,83 +130,59 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         return Vector3.zero;
     }
 
-    // get camera local position by given game field position
-    // camera lozal.z position should be = 0 always
-    Vector3 GetLocalPosByFieldPos(Vector3 fieldPos)
+    Vector3 GetCameraHolderPosByFieldPos(Vector3 fieldPos)
     {
         Ray rayFromGameField = new Ray(fieldPos, -_cameraNormal);
-       
+
         Debug.DrawRay(rayFromGameField.origin, rayFromGameField.direction * 100, Color.red);
 
         Vector3 intersection;
-        
-        if (_cameraPlane.Raycast(rayFromGameField, out float distanceToIntersection)) {
+
+        if (_cameraHolderPlane.Raycast(rayFromGameField, out float distanceToIntersection))
+        {
             intersection = rayFromGameField.GetPoint(distanceToIntersection);
         }
-        else {
-            Debug.LogError("No intersection with camera plane.");
+        else
+        {
+            Debug.LogError("No intersection with camera plane for ray from fieldPos.");
             return Vector3.zero;
         }
 
-        Vector3 intersectionLocalCoords = _cameraHolder.transform.InverseTransformPoint(intersection);
-        intersectionLocalCoords.z = 0;
+        Debug.DrawLine(fieldPos, intersection);
 
-        return intersectionLocalCoords;
+        return intersection;
     }
 
-    // get camera extreme local positions to prevent moving out of gamefield
-    Vector3[] GetLocalBoundaryCorners()
-    {
-        Vector3[] corners = new Vector3[2];
-        
-        Vector3 leftBottomCorner = _mapGenerator.GetBoundaryCorners()[0];
-        Vector3 rightTopCorner = _mapGenerator.GetBoundaryCorners()[1];
-
-        corners[0] = GetLocalPosByFieldPos(leftBottomCorner);
-        corners[1] = GetLocalPosByFieldPos(rightTopCorner);
-
-        return corners;
-    }
-    
+    // method to debug camera pos
     void PlaceByClick() 
     {
         Vector3 fieldClickedPos = GetFieldPosByClick();
-        Vector3 newLocalPos = GetLocalPosByFieldPos(fieldClickedPos);
+        Vector3 newCameraHolderPos = GetCameraHolderPosByFieldPos(fieldClickedPos);
 
-        _cameraObject.transform.localPosition = newLocalPos;
+        _cameraHolder.transform.position = newCameraHolderPos;
     }
 
     public void MoveByClick()
     {
-        Vector3 startLocalPos = _cameraObject.transform.localPosition;
-        Vector3 targetLocalPos = GetLocalPosByFieldPos(GetFieldPosByClick());
-    
-        if (_currentMoveCoroutine != null) {
+        Vector3 startpos = _cameraHolder.transform.position;
+        Vector3 targetpos = GetCameraHolderPosByFieldPos(GetFieldPosByClick());
+
+        if (_currentMoveCoroutine is not null)
+        {
             StopCoroutine(_currentMoveCoroutine);
         }
-        _currentMoveCoroutine = StartCoroutine( AnimateLocalPos(startLocalPos, targetLocalPos) );
+        _currentMoveCoroutine = StartCoroutine(AnimatePosition(startpos, targetpos));
     }
 
-    Vector3 LimitCameraPosByField(Vector3 pos)
+    IEnumerator AnimatePosition(Vector3 startPos, Vector3 targetPos)
     {
-        Vector3 newPos = new Vector3() {
-            x = Mathf.Clamp(pos.x, _gamefieldLocalCorners[0].x, _gamefieldLocalCorners[1].x),
-            y = Mathf.Clamp(pos.y, _gamefieldLocalCorners[0].y, _gamefieldLocalCorners[1].y)
-        };
-
-        return newPos;
-    }
-
-    IEnumerator AnimateLocalPos(Vector3 startPos, Vector3 targetPos)
-    {
-        float t = 0;
         float elapsedTime = 0;
 
         while (elapsedTime < _moveAnimDuration) {
             elapsedTime += Time.deltaTime;
-            t = elapsedTime / _moveAnimDuration;     // time normalized from 0 to 1
-            float easedT = Mathf.Sin(t * Mathf.PI / 2); // easing function
-            _cameraObject.transform.localPosition = Vector3.Lerp(startPos, targetPos, easedT);
+            float t = elapsedTime / _moveAnimDuration;      // time normalized from 0 to 1
+            float easedT = Mathf.Sin(t * Mathf.PI / 2);     // easing function
+            _cameraHolder.transform.position = Vector3.Lerp(startPos, targetPos, easedT);
 
             yield return null;
         }
@@ -206,7 +197,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     
     public void DragEnable(InputAction.CallbackContext context)
     {
-        _previousCameraPos = _cameraObject.transform.localPosition;
+        _previousCameraHolderPos = _cameraHolder.transform.localPosition;
 
         if (context.phase == InputActionPhase.Performed) {
             _isDragging = true;
@@ -231,14 +222,14 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
 
             if (deltaMousePos != Vector2.zero)
             {
-                Vector3 deltaCameraPos = new Vector3(deltaMousePos.x, deltaMousePos.y, 0);
-                Vector3 newCameraPos = _previousCameraPos - deltaCameraPos * MouseDragSensitivity;
+                Vector3 deltaCameraHolderPos = new Vector3(deltaMousePos.x, 0, deltaMousePos.y);
+                Vector3 newCameraHolderPos = _previousCameraHolderPos - deltaCameraHolderPos * MouseDragSensitivity;
                 
-                _cameraObject.transform.localPosition = LimitCameraPosByField(newCameraPos);
-                //_cameraObject.transform.localPosition = newCameraPos;
+                _cameraHolder.transform.localPosition = LimitCameraHolderPosByField(newCameraHolderPos);
+                Debug.Log($"Holder current pos: {_cameraHolder.transform.localPosition}");
 
                 _prevoiusMousePos = _currentMousePos;   // update previous mouse pos as current
-                _previousCameraPos = _cameraObject.transform.localPosition;
+                _previousCameraHolderPos = _cameraHolder.transform.localPosition;
             }
         }
         else {
@@ -246,9 +237,13 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
         }
     }
 
+    Vector3 LimitCameraHolderPosByField(Vector3 pos)
+    {
+        Vector3 newPos = new Vector3() {
+            x = Mathf.Clamp(pos.x, _gamefieldLocalCorners[0].x, _gamefieldLocalCorners[1].x),
+            z = Mathf.Clamp(pos.z, _gamefieldLocalCorners[0].z, _gamefieldLocalCorners[1].z)
+        };
 
-
-
-
-
+        return newPos;
+    }
 }

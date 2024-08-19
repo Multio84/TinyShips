@@ -11,6 +11,7 @@ public class WorldGenerator : MonoBehaviour
     // map
     [Header("Terrain")]
     int _mapSize;    // length of a square side (counted in cells), in which resulting rhomb map will be inscribed
+    // max _mapWidth x _mapHeight are 120 x 70
     public int _mapWidth;   // width length of rhomb map in cells
     public int _mapHeight;  // height length of rhomb map in cells
 
