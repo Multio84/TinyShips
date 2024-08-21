@@ -28,7 +28,13 @@ public class Tile : TerrainObject
     public TileType Type => _type;
     public BiomeType BiomeType => _biomeType;
     public List <DecorationTypeSpawnChance> SpawnChances => _spawnChances;  // spawn chances of each decoration type to be spawned on this biome
-    public override GameObject Prefab => _prefab;
+    public override GameObject Prefab
+    {
+        get => _prefab;
+        set => _prefab = value;
+    }
+
+
 
 
     private void OnEnable()

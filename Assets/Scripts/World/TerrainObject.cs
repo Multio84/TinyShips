@@ -17,5 +17,5 @@ public enum BiomeType
 
 public abstract class TerrainObject : ScriptableObject
 {
-    public abstract GameObject Prefab { get; }
+    public abstract GameObject Prefab { get; set; }
 }

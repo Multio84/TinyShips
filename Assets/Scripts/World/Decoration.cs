@@ -2,6 +2,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
+
+[CreateAssetMenu(fileName = "DecorationDatabase", menuName = "Terrain/DecorationDatabase")]
+public class DecorationDatabase : ScriptableObject
+{
+    public List<Decoration> decorations = new List<Decoration>();
+}
+
 public enum DecorationType
 {
     Tree,   // trees & bushes
@@ -24,8 +31,16 @@ public class Decoration : TerrainObject
     [SerializeField] private GameObject _prefab;
     [SerializeField] private List <BiomeSpawnChance> _biomeSpawnChances = new List <BiomeSpawnChance>();
 
-    public DecorationType Type => _type;
-    public override GameObject Prefab => _prefab;
+    public DecorationType Type
+    {
+        get => _type;
+        set => _type = value;
+    }
+    public override GameObject Prefab
+    {
+        get => _prefab;
+        set => _prefab = value;
+    }
     public List <BiomeSpawnChance> BiomeSpawnChances => _biomeSpawnChances;   // spawn chances of this decoration for each biome
 
     private void OnEnable()

@@ -33,7 +33,7 @@ public class TerrainDecorator : MonoBehaviour
 
     void LoadDecorations()
     {   
-        _decorations = ResourcesLoader.LoadAllFromResources<Decoration>("World/Decorations");
+        _decorations = Resources.LoadAll<Decoration>("World/Decorations");
     }
 
     void SpawnAllDecorations(TileComponent tile)
