@@ -11,9 +11,10 @@ public class DecorationDatabase : ScriptableObject
 
 public enum DecorationType
 {
-    Tree,   // trees & bushes
-    Grass,  // grass, flowers, and other small flora
-    Stone   // stones and other small objects
+    Tree,   // trees & bushes - high flora
+    Bush,   // middle height flora
+    Grass,  // grass, flowers, and other small low height flora
+    Stone   // stones and other small objects - the lowest objects on ground
 }
 
 // class to set spawn chance of decoration on a biome
