@@ -1,6 +1,8 @@
 using UnityEngine;
 
 
+// class to randomize places of spawn on a tile
+
 public abstract class DecorationSpawner : MonoBehaviour
 {
     public abstract GameObject[] Places { get; }

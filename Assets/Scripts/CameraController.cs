@@ -34,7 +34,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     // zoom & distance
     const int _farClipPlane = 1000;
     const float DefaultZoom = 5f;
-    const float MinZoom = 4f;
+    const float MinZoom = 1f;
     const float MaxZoom = 14f;
     float _currentZoom;
 

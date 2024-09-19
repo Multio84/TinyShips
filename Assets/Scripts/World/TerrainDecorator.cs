@@ -63,9 +63,10 @@ public class TerrainDecorator : MonoBehaviour
 
         foreach (var place in places) {
             var decoration = SelectDecorationOfType(tile, type);
-            if (decoration is null) {
+            if (decoration is null)
+            {
                 Destroy(_currentSpawner);
-                continue;    
+                continue;
             }
 
             var decorationSpawned = Instantiate(decoration, place);
@@ -105,12 +106,13 @@ public class TerrainDecorator : MonoBehaviour
     {
         List<Decoration> allDecorationsOfType = new List<Decoration>();
 
-        // collect all decorations of type
+        // collect all decorations of type that have prefabs assigned
         foreach (var decoration in _decorations) {
-            if (decoration.Type == type) {
+            if (decoration.Type == type && decoration.Prefab != null) {
                 allDecorationsOfType.Add(decoration);
             }
         }
+        if (allDecorationsOfType.Count() == 0) return null;
 
         List<Decoration> decorationsToSpawn = new List<Decoration>();
 
@@ -125,8 +127,7 @@ public class TerrainDecorator : MonoBehaviour
                 }
             }
         }
-
-        if (decorationsToSpawn.Count() < 1) return null;
+        if (decorationsToSpawn.Count() == 0) return null;
         
         return GetRandomDecorationPrefab(decorationsToSpawn);
     }

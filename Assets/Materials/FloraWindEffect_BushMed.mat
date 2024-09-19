@@ -15,7 +15,7 @@ Material:
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -114,6 +114,7 @@ Material:
     - _Surface: 0
     - _WindDensity: 0.5
     - _WindDensity_2: 0.85
+    - _WindDensity_old: 0.5
     - _WindIntensity: 0.361
     - _WindSpeed: 0.5
     - _WindStrength: 0.46

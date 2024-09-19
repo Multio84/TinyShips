@@ -49,7 +49,7 @@ public class Decoration : TerrainObject
         InitAllBiomesChance();
     }
 
-    // inits spawn chance on each biom as 0, if it's not set yet
+    // inits spawn chance on each biome as 0, if it's not set yet
     private void InitAllBiomesChance()
     {
         foreach (BiomeType biomeType in System.Enum.GetValues(typeof(BiomeType)))
