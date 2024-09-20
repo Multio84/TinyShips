@@ -22,5 +22,5 @@ MonoBehaviour:
   - DecorationType: 2
     SpawnChance: 0.6
   - DecorationType: 3
-    SpawnChance: 0.5
+    SpawnChance: 0.3
   _prefab: {fileID: 6169785503528061456, guid: 89a4b9f4e6e9844449bf8a945daccf81, type: 3}
