@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -7,6 +8,19 @@ public abstract class DecorationSpawner : MonoBehaviour
 {
     public abstract GameObject[] Places { get; }
     bool isInitializationDone = false;
+
+    public float smallOffset = WorldGenerator.TileSize / 12;  // when decoration's place pos should be randomized slightly
+    public float bigOffset = WorldGenerator.TileSize / 6;     // when decoration's place pos should be randomized a lot
+
+    // class to set spawn chance of certain spawner for certain decoration type
+    [System.Serializable]
+    public class SpawnerSpawnChance
+    {
+        public DecorationType DecorationType;
+        public float SpawnChance;
+    }
+
+    public SpawnerSpawnChance[] spawnerSpawnChance;
 
 
     void OnEnable()

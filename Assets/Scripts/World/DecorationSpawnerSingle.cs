@@ -8,7 +8,7 @@ public class DecorationSpawnerSingle : DecorationSpawner
         get {return places;}
     }
 
-    float bigOffset = WorldGenerator.TileSize / 5;     // when decoration's place pos should be randomized a lot
+    //float bigOffset = WorldGenerator.TileSize / 6;     // when decoration's place pos should be randomized a lot
 
 
     protected override void RandomizePlacesOffset()

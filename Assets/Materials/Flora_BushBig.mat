@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: FloraWindEffect_BushBig
+  m_Name: Flora_BushBig
   m_Shader: {fileID: -6465566751694194690, guid: 9c0d4e3f593702c47b9a1e1a2fd21b38,
     type: 3}
   m_Parent: {fileID: 0}

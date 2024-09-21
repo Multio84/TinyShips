@@ -8,9 +8,7 @@ public class DecprationSpawnerQuadro : DecorationSpawner
     {
         get => places;//{ return places; }
     }
-
-    float smallOffset = WorldGenerator.TileSize / 10;  // when decoration's place pos should be randomized slightly
-
+    
 
     protected override void RandomizePlacesOffset()
     {
