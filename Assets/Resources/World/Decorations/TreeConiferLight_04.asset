@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TreeConiferLight_04
   m_EditorClassIdentifier: 
   _type: 0
-  _prefab: {fileID: 1546769651317489396, guid: 721a05a60521bce45b9aa405a142c379, type: 3}
+  _prefab: {fileID: 0}
   _biomeSpawnChances:
   - BiomeType: 0
     SpawnChance: 0
@@ -24,8 +24,8 @@ MonoBehaviour:
   - BiomeType: 3
     SpawnChance: 0
   - BiomeType: 4
-    SpawnChance: 0.3
+    SpawnChance: 0
   - BiomeType: 5
-    SpawnChance: 1
+    SpawnChance: 0
   - BiomeType: 6
     SpawnChance: 0

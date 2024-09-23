@@ -6,10 +6,10 @@ using System;
 
 /*
  * class to spawn decorations in the world
- * each tile can have 1-3 decorations
- * position of spawned decorations a being collected from "spawners"
+ * each tile can have 1-4 decorations
+ * positions of spawned decorations a being collected from "spawners"
  * - objects with empty objects in hierarchy, called "places"
- * there are spawnerSingle, double & triple - named by number of places in them
+ * there are spawnerSingle, double, triple & quadro - named by number of places in them
 */
 
 public class TerrainDecorator : MonoBehaviour
@@ -23,7 +23,10 @@ public class TerrainDecorator : MonoBehaviour
     public void Decorate(Dictionary<Vector2Int, TileComponent> tiles)
     {
         LoadDecorations();
-        if (_decorations.Length < 1) Debug.Log("No decorations were loaded.");
+        if (_decorations.Length == 0) {
+            Debug.Log("No decorations were loaded.");
+            return;
+        }
         
         foreach (var element in tiles) {
             var tile = element.Value;
@@ -59,12 +62,15 @@ public class TerrainDecorator : MonoBehaviour
 
     void SpawnDecorationsOfType(TileComponent tile, DecorationType type)
     {
+        
+        var decorationsToSpawn = CollectDecorationsOfType(tile, type);
+        if (decorationsToSpawn is null) { return; }
+
         Transform[] places = GetPlacesToSpawn(tile);
 
         foreach (var place in places) {
-            var decoration = SelectDecorationOfType(tile, type);
-            if (decoration is null)
-            {
+            var decoration = GetRandomDecorationPrefab(decorationsToSpawn);
+            if (decoration is null) {
                 Destroy(_currentSpawner);
                 continue;
             }
@@ -102,12 +108,12 @@ public class TerrainDecorator : MonoBehaviour
         return _spawners[randomIndex];
     }
 
-    GameObject SelectDecorationOfType(TileComponent tile, DecorationType type)
+    List<Decoration> CollectDecorationsOfType(TileComponent tile, DecorationType type)
     {
         List<Decoration> allDecorationsOfType = new List<Decoration>();
-
-        // collect all decorations of type that have prefabs assigned
+                
         foreach (var decoration in _decorations) {
+            // collect all decorations of type, that have prefabs assigned
             if (decoration.Type == type && decoration.Prefab != null) {
                 allDecorationsOfType.Add(decoration);
             }
@@ -116,8 +122,9 @@ public class TerrainDecorator : MonoBehaviour
 
         List<Decoration> decorationsToSpawn = new List<Decoration>();
 
-        foreach (var decoration in allDecorationsOfType) {
-            // collect decorations, that have a chance for the tile's biome
+        foreach (var decoration in allDecorationsOfType)
+        {
+            // collect decorations, which spawn chance for the tile's biome came true
             foreach (var biomeSpawnChance in decoration.BiomeSpawnChances) {
                 if (biomeSpawnChance.BiomeType == tile.BiomeType) {
                     if (ResultChance(biomeSpawnChance.SpawnChance)) {
@@ -127,9 +134,10 @@ public class TerrainDecorator : MonoBehaviour
                 }
             }
         }
-        if (decorationsToSpawn.Count() == 0) return null;
-        
-        return GetRandomDecorationPrefab(decorationsToSpawn);
+
+        if (decorationsToSpawn.Count() == 0) { return null; }
+
+        return decorationsToSpawn;
     }
 
     GameObject GetRandomDecorationPrefab(List<Decoration> decorations)

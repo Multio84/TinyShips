@@ -16,11 +16,11 @@ MonoBehaviour:
   _biomeType: 4
   _spawnChances:
   - DecorationType: 0
-    SpawnChance: 0.8
+    SpawnChance: 0.7
   - DecorationType: 1
-    SpawnChance: 0.6
+    SpawnChance: 0.5
   - DecorationType: 2
-    SpawnChance: 0.6
+    SpawnChance: 0.1
   - DecorationType: 3
-    SpawnChance: 0.2
+    SpawnChance: 0.05
   _prefab: {fileID: 6169785503528061456, guid: 89a4b9f4e6e9844449bf8a945daccf81, type: 3}

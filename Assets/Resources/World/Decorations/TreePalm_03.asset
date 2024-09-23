@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TreePalm_03
   m_EditorClassIdentifier: 
   _type: 0
-  _prefab: {fileID: 6274977157830587544, guid: 6a4d9890d5fa82d42a5b7b94fca0bd57, type: 3}
+  _prefab: {fileID: 4860538571231915226, guid: 5eec5bacdabb5d741890bb9b8cc08b66, type: 3}
   _biomeSpawnChances:
   - BiomeType: 0
     SpawnChance: 0
@@ -22,7 +22,7 @@ MonoBehaviour:
   - BiomeType: 2
     SpawnChance: 1
   - BiomeType: 3
-    SpawnChance: 0.3
+    SpawnChance: 0
   - BiomeType: 4
     SpawnChance: 0
   - BiomeType: 5

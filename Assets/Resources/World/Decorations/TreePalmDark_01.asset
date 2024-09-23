@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: TreePalmDark_01
   m_EditorClassIdentifier: 
   _type: 0
-  _prefab: {fileID: 6274977157830587544, guid: 6a4d9890d5fa82d42a5b7b94fca0bd57, type: 3}
+  _prefab: {fileID: 0}
   _biomeSpawnChances:
   - BiomeType: 0
     SpawnChance: 0
   - BiomeType: 1
     SpawnChance: 0
   - BiomeType: 2
-    SpawnChance: 1
+    SpawnChance: 0
   - BiomeType: 3
-    SpawnChance: 0.3
+    SpawnChance: 0
   - BiomeType: 4
     SpawnChance: 0
   - BiomeType: 5

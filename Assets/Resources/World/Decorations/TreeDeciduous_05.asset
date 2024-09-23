@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TreeDeciduous_05
   m_EditorClassIdentifier: 
   _type: 0
-  _prefab: {fileID: 196109322898365877, guid: 6a29f1a83536f4345a62b5ea57796934, type: 3}
+  _prefab: {fileID: 4308747003728880589, guid: 6568e9d3b112fd446980b41db813da40, type: 3}
   _biomeSpawnChances:
   - BiomeType: 0
     SpawnChance: 0
@@ -22,10 +22,10 @@ MonoBehaviour:
   - BiomeType: 2
     SpawnChance: 0
   - BiomeType: 3
-    SpawnChance: 0.3
+    SpawnChance: 1
   - BiomeType: 4
     SpawnChance: 1
   - BiomeType: 5
-    SpawnChance: 0.3
+    SpawnChance: 0
   - BiomeType: 6
     SpawnChance: 0

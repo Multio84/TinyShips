@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TreeConifer_03
   m_EditorClassIdentifier: 
   _type: 0
-  _prefab: {fileID: 3376884002949120899, guid: f8d611aaaab28464a84c8a7b368711f9, type: 3}
+  _prefab: {fileID: 5400427105293109363, guid: 2f88172f34876c744a6ce2f22fe8ad65, type: 3}
   _biomeSpawnChances:
   - BiomeType: 0
     SpawnChance: 0
@@ -22,10 +22,10 @@ MonoBehaviour:
   - BiomeType: 2
     SpawnChance: 0
   - BiomeType: 3
-    SpawnChance: 0.2
+    SpawnChance: 0
   - BiomeType: 4
-    SpawnChance: 0.3
+    SpawnChance: 0.05
   - BiomeType: 5
     SpawnChance: 1
   - BiomeType: 6
-    SpawnChance: 0
+    SpawnChance: 0.05

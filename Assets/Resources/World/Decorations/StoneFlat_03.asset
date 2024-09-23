@@ -12,20 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d3b80084f3f5e144a5a75dff078fd15, type: 3}
   m_Name: StoneFlat_03
   m_EditorClassIdentifier: 
-  _type: 0
-  _prefab: {fileID: 2337215898773640036, guid: c0a1a4abfe8360942b9b709804832b98, type: 3}
+  _type: 3
+  _prefab: {fileID: 5437753929643944292, guid: 4f26869d02c6ca04aa89680457d067af, type: 3}
   _biomeSpawnChances:
   - BiomeType: 0
     SpawnChance: 0
   - BiomeType: 1
     SpawnChance: 0
   - BiomeType: 2
-    SpawnChance: 0.8
-  - BiomeType: 3
-    SpawnChance: 0.7
-  - BiomeType: 4
-    SpawnChance: 0.6
-  - BiomeType: 5
     SpawnChance: 0.5
-  - BiomeType: 6
+  - BiomeType: 3
     SpawnChance: 1
+  - BiomeType: 4
+    SpawnChance: 1
+  - BiomeType: 5
+    SpawnChance: 1
+  - BiomeType: 6
+    SpawnChance: 0.3

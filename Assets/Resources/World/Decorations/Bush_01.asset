@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d3b80084f3f5e144a5a75dff078fd15, type: 3}
   m_Name: Bush_01
   m_EditorClassIdentifier: 
-  _type: 0
-  _prefab: {fileID: 3324976487597819138, guid: 89dbd39467e5d374bbea207f48fd4600, type: 3}
+  _type: 1
+  _prefab: {fileID: 2660214592901569381, guid: 651f970fa90ebf542b3f57a08551e4da, type: 3}
   _biomeSpawnChances:
   - BiomeType: 0
     SpawnChance: 0
@@ -22,10 +22,10 @@ MonoBehaviour:
   - BiomeType: 2
     SpawnChance: 0
   - BiomeType: 3
-    SpawnChance: 0.4
+    SpawnChance: 1
   - BiomeType: 4
     SpawnChance: 1
   - BiomeType: 5
     SpawnChance: 1
   - BiomeType: 6
-    SpawnChance: 0
+    SpawnChance: 1

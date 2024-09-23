@@ -4,7 +4,6 @@ using UnityEngine;
 using System.Collections.Generic;
 
 
-
 public class DecorationDatabaseEditor : EditorWindow
 {
     private List<Decoration> decorations;
@@ -19,11 +18,10 @@ public class DecorationDatabaseEditor : EditorWindow
     private float typeWidth = 80;
     private float biomeWidth = 50;
     private float cellSpacing = 10;
-    //private float headerHeight = EditorGUIUtility.singleLineHeight + 4;
 
     // Background color for lines
     private Color lineBackgroundColor = new Color32(51, 51, 51, 255);   // gray
-    
+
 
 
     [MenuItem("Window/Decoration Editor")]
@@ -34,12 +32,12 @@ public class DecorationDatabaseEditor : EditorWindow
 
     private void OnEnable()
     {
+        ReloadDecorations();
+    }
+
+    private void ReloadDecorations()
+    {
         decorations = new List<Decoration>(Resources.LoadAll<Decoration>("World/Decorations"));
-
-        // creating SerializedObject for serialized data manipulations
-        serializedObject = new SerializedObject(this);
-
-        // creating ReorderableList for displaying and editing Decorations list
         reorderableList = new ReorderableList(decorations, typeof(Decoration), true, true, false, false)
         {
             drawHeaderCallback = (Rect rect) =>
@@ -53,10 +51,13 @@ public class DecorationDatabaseEditor : EditorWindow
                 // Draw background rectangle
                 Rect backgroundRect = new Rect(rect.x, rect.y + 1, rect.width, rect.height - 2);
                 EditorGUI.DrawRect(backgroundRect, lineBackgroundColor);
-                
+
                 // display the Decoration name
                 Rect decorationName = new Rect(rect.x + cellSpacing, rect.y + cellSpacing / 5, prefabWidth, lineHeight);
                 EditorGUI.LabelField(decorationName, decoration.name);
+
+                // Begin property modification check
+                EditorGUI.BeginChangeCheck();
 
                 // display the Decoration field
                 Rect prefabSlot = new Rect(rect.x + decorationWidth + cellSpacing * 2, rect.y + cellSpacing / 3, prefabWidth, lineHeight);
@@ -73,6 +74,12 @@ public class DecorationDatabaseEditor : EditorWindow
                     biomeSpawnChance.SpawnChance = EditorGUI.FloatField(spawnChance, biomeSpawnChance.SpawnChance);
                     xOffset += biomeWidth + cellSpacing / 2;
                 }
+
+                // If any property was changed, mark the object as dirty
+                if (EditorGUI.EndChangeCheck())
+                {
+                    EditorUtility.SetDirty(decoration);
+                }
             },
             elementHeightCallback = (int index) =>
             {
@@ -81,20 +88,9 @@ public class DecorationDatabaseEditor : EditorWindow
         };
     }
 
-    private void ReloadDecorations()
-    {
-        decorations = new List<Decoration>(Resources.LoadAll<Decoration>("World/Decorations"));
-        reorderableList.list = decorations; // Обновляем список в ReorderableList
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space)) ReloadDecorations();
-    }
-
     private void OnGUI()
     {
-        ReloadDecorations();
+        serializedObject = new SerializedObject(this);
         serializedObject.Update();
 
         // display the title
@@ -115,7 +111,7 @@ public class DecorationDatabaseEditor : EditorWindow
 
         // Scrolling area for the list
         scrollPosition = GUILayout.BeginScrollView(scrollPosition);
-        
+
         reorderableList.DoLayoutList();
         serializedObject.ApplyModifiedProperties();
         GUILayout.EndScrollView();

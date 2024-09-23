@@ -22,7 +22,7 @@ MonoBehaviour:
   - BiomeType: 2
     SpawnChance: 1
   - BiomeType: 3
-    SpawnChance: 0.3
+    SpawnChance: 0
   - BiomeType: 4
     SpawnChance: 0
   - BiomeType: 5
