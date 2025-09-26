@@ -50,7 +50,7 @@ public class CameraController : MonoBehaviour, ICameraInputHandler
     void Start()
     {   
         // subcscribe to InputController
-        _inputController = FindObjectOfType<InputController>();
+        _inputController = FindAnyObjectByType<InputController>();
         if (_inputController is not null) {
             _inputController.SubscribeCameraHandler(this);
         }

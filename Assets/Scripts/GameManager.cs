@@ -34,33 +34,33 @@ public class GameManager : MonoBehaviour
 
     void InitializeComponents()
     {
-        GameMode = FindObjectOfType<GameMode>();
+        GameMode = FindAnyObjectByType<GameMode>();
         if (GameMode is null) {
             Debug.Log("GameMode not found!");
             return;
         }
 
-        PlayerController = FindObjectOfType<PlayerController>();
+        PlayerController = FindAnyObjectByType<PlayerController>();
         if (PlayerController is null) {
             Debug.Log("PlayerController not found!");
             return;
         }
 
-        WorldGenerator = FindObjectOfType<WorldGenerator>();
+        WorldGenerator = FindAnyObjectByType<WorldGenerator>();
         if (WorldGenerator is null) {
             Debug.Log("MapGenerator not found!");
             return;
         }
         WorldGenerator.Initialize();
 
-        TerrainDecorator = FindObjectOfType<TerrainDecorator>();
+        TerrainDecorator = FindAnyObjectByType<TerrainDecorator>();
         if (TerrainDecorator is null) {
             Debug.Log("TerrainDecorator not found!");
             return;
         }
         
 
-        CameraController = FindObjectOfType<CameraController>();
+        CameraController = FindAnyObjectByType<CameraController>();
         if (CameraController is null) {
             Debug.Log("CameraController not found!");
             return;
