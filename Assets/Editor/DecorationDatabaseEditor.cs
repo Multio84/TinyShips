@@ -24,7 +24,7 @@ public class DecorationDatabaseEditor : EditorWindow
 
 
 
-    [MenuItem("Window/Decoration Editor")]
+    [MenuItem("Custom Tools/Decoration Editor")]
     public static void ShowWindow()
     {
         GetWindow<DecorationDatabaseEditor>("Decoration Editor");
@@ -56,7 +56,6 @@ public class DecorationDatabaseEditor : EditorWindow
                 Rect decorationName = new Rect(rect.x + cellSpacing, rect.y + cellSpacing / 5, prefabWidth, lineHeight);
                 EditorGUI.LabelField(decorationName, decoration.name);
 
-                // Begin property modification check
                 EditorGUI.BeginChangeCheck();
 
                 // display the Decoration field
@@ -81,6 +80,7 @@ public class DecorationDatabaseEditor : EditorWindow
                     EditorUtility.SetDirty(decoration);
                 }
             },
+            // 
             elementHeightCallback = (int index) =>
             {
                 return EditorGUIUtility.singleLineHeight + 4;

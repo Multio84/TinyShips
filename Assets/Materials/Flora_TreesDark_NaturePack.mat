@@ -112,7 +112,7 @@ Material:
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
-    - _Sway: 0
+    - _Sway: 1
     - _Tilt: 0.5
     - _WindDensity: 0.3
     - _WindDensity_2: 0.85
